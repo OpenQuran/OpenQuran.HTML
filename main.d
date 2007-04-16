@@ -511,7 +511,10 @@ void main(char[][] args)
   // Load files
   Quran[] qurans;
   foreach(author; authors)
-    qurans ~= new Quran(author);
+    try
+      qurans ~= new Quran(author);
+    catch(Exception e)
+      writefln(e);
 
   // Output verses of each author in sequential order.
   foreach(quran; qurans)
