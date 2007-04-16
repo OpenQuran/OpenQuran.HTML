@@ -436,19 +436,42 @@ class Quran
     if (!std.file.exists(fileName))
       throw new Exception("Error: the file of the author \"" ~ fileName ~ "\" doesn't exist.");
 
-    char[] text = cast(char[]) std.file.read(fileName);
+    char[] data = cast(char[]) std.file.read(fileName);
+
+    char[][] header;
+
+    for(int i; i<2; ++i)
+    {
+      int nlpos = find(data, '\n');
+      if (nlpos == -1)
+        goto Lcorrupt;
+      header ~= data[0..nlpos];
+      data = data[nlpos+1..$];
+    }
+
+    if (find(header[0],"Author:") != 0 || find(header[1],"Lang:") != 0)
+      goto Lcorrupt;
+    author = std.string.strip(header[0][7..$]);
+    language = std.string.strip(header[1][5..$]);
+
     // Currently a new-line character is used to separate the verses.
     // This may change in case there are translations out there
     // that have new-lines in the verses.
-    char[][] verses = std.string.split(text, "\n");
+    char[][] verses = std.string.split(data, "\n");
 
     if (verses.length != NR_OF_VERSES)
       throw new Exception("Error: the file \"" ~ fileName ~ "\" doesn't exactly have 6236 verses.");
 
     this.fileName = fileName;
     this.verses = verses;
+
+    return;
+    Lcorrupt:
+      throw new Exception("Error: the header of the file \""~fileName~"\" is corrupt.");
   }
 
+  private char[] author;
+  private char[] language;
   private char[] fileName;
   private char[][] verses;
 }
@@ -493,7 +516,7 @@ void main(char[][] args)
   // Output verses of each author in sequential order.
   foreach(quran; qurans)
   {
-    writefln("[%s]", quran.fileName);
+    writefln("[%s]", quran.author);
     foreach(aref; refs)
     {
       foreach(cidx; aref.getChapterIndices())
