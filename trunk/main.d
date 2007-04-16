@@ -97,6 +97,8 @@ class Reference
   this(Range[] chapters, Range[] verses=null)
   {
     this.chapters = chapters;
+    if (verses is null)
+      verses ~= new Range(Range.Type.Any);
     this.verses   = verses;
   }
 
@@ -427,31 +429,83 @@ class ReferenceListParser
   private char* p; /// points to current character
 }
 
+class Quran
+{
+  this(char[] fileName)
+  {
+    if (!std.file.exists(fileName))
+      throw new Exception("Error: the file of the author \"" ~ fileName ~ "\" doesn't exist.");
+
+    char[] text = cast(char[]) std.file.read(fileName);
+    // Currently a new-line character is used to separate the verses.
+    // This may change in case there are translations out there
+    // that have new-lines in the verses.
+    char[][] verses = std.string.split(text, "\n");
+
+    if (verses.length != NR_OF_VERSES)
+      throw new Exception("Error: the file \"" ~ fileName ~ "\" doesn't exactly have 6236 verses.");
+
+    this.fileName = fileName;
+    this.verses = verses;
+  }
+
+  private char[] fileName;
+  private char[][] verses;
+}
+
+const char[] helpMessage =
+`openquran v0.1
+Copyright (c) 2007 by Aziz Köksal
+Usage:
+
+quran <reference[[;] ...]> <translator[,...]>`;
+
 void main(char[][] args)
 {
-  auto parser = new ReferenceListParser("*:200-*"/* 2:44; 2:44-45; 5-8; 5-8:19; 5-8:19-20; 3,2; 2:2,4,7-23;"*/);
+  if ( args.length <= 1 ||
+      (args.length == 2 && (args[1] == "--help" || args[1] == "-h"))
+     )
+  {
+    writefln(helpMessage);
+    return;
+  }
+
+  char[] referenceList = args[1];
+  char[][] authors = (args.length == 3) ? split(args[2], ",") : null;
+
+  // Parse reference list
+  auto parser = new ReferenceListParser(referenceList);
 
   Reference[] refs;
   try
     refs = parser.parseReferences();
   catch(Exception e)
-    writefln(e);
-
-  char[] text = cast(char[]) std.file.read("usc/yusufali");
-  char[][] verses = std.string.split(text, "\n");
-  assert(verses.length == NR_OF_VERSES);
-
-  foreach(aref; refs)
   {
-    foreach(cidx; aref.getChapterIndices())
-    {
-      int flatChapterIdx = getFlatChapterIndex(cidx);
-      // Slice into chapter
-      char[][] chapter = verses[flatChapterIdx .. (flatChapterIdx + verses_table[cidx])];
+    writefln("Reference List ", e);
+    return;
+  }
 
-      foreach(vidx; aref.getVerseIndices(cidx))
+  // Load files
+  Quran[] qurans;
+  foreach(author; authors)
+    qurans ~= new Quran(author);
+
+  // Output verses of each author in sequential order.
+  foreach(quran; qurans)
+  {
+    writefln("[%s]", quran.fileName);
+    foreach(aref; refs)
+    {
+      foreach(cidx; aref.getChapterIndices())
       {
-        writefln("%03d:%03d: ", cidx+1, vidx+1, chapter[vidx]);
+        int flatChapterIdx = getFlatChapterIndex(cidx);
+        // Slice into chapter
+        char[][] chapter = quran.verses[flatChapterIdx .. (flatChapterIdx + verses_table[cidx])];
+
+        foreach(vidx; aref.getVerseIndices(cidx))
+        {
+          writefln("%03d:%03d: ", cidx+1, vidx+1, chapter[vidx]);
+        }
       }
     }
   }
