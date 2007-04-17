@@ -85,6 +85,7 @@ struct Token
     char  c; // - , : ; *
   }
   TOK id;
+  int pos; /// the position of the Token in the input stream
 
   char[] toString()
   {
@@ -193,6 +194,24 @@ class Range
   Type type;
 }
 
+class ParseError : Error
+{
+  this(char[] errorMsg, char[] input, int position)
+  {
+    super(errorMsg);
+    this.errorPos = position;
+    this.input = input;
+  }
+
+  char[] toString()
+  {
+    return std.string.format(input,"\n"~std.string.repeat(" ",errorPos)~"^\n","ParseError: ",msg);
+  }
+
+  private char[] input;
+  private int errorPos;
+}
+
 /++
 Parses a string into a list of Reference objects.
 Examples:
@@ -270,6 +289,7 @@ class ReferenceListParser
       {
         case 0:
           tok.id = TOK.Eof;
+          tok.pos = p - input.ptr;
           return;
         case ' ','\t':
           p++;
@@ -282,11 +302,12 @@ class ReferenceListParser
             if (n < ushort.max/10 || (n == ushort.max/10 && c <= '5'))
               n = n * 10 + (c - '0');
             else
-              throw new Exception("Error: number overflow.");
+              throw new ParseError("number overflow.", input, p - input.ptr);
             c = *(++p);
           }
           tok.id = TOK.Number;
           tok.number = n;
+          tok.pos = p - input.ptr;
           return;
         case ':':
           tok.id = TOK.Colon;
@@ -304,10 +325,11 @@ class ReferenceListParser
           tok.id = TOK.Semicolon;
         Lsymbols:
           tok.c = c;
+          tok.pos = p - input.ptr;
           p++;
           return;
         default:
-          throw new Exception("Error: illegal token found.");
+          throw new ParseError("illegal token found.", input, p - input.ptr);
       }
     }
   }
@@ -330,10 +352,10 @@ class ReferenceListParser
     while (token.id != TOK.Eof)
     {
       refs ~= parseReference();
-      if (token.id == TOK.Number)
+      if (token.id == TOK.Number || token.id == TOK.Wildcard)
         continue;
       if (token.id != TOK.Semicolon && token.id != TOK.Eof && token.id != TOK.Number)
-        throw new Exception("Error: expected number, semicolon or end of input, but found " ~ token.toString());
+        throw new ParseError("expected number, semicolon or end of input, but found " ~ token.toString(), input, token.pos);
       nextToken();
     }
     return refs;
@@ -421,7 +443,7 @@ class ReferenceListParser
   Lexit:
     return new Range(type, left, right);
   Lerr:
-    throw new Exception("Error: number or '*' expected, not " ~ TOKname[token.id]);
+    throw new ParseError("number or '*' expected, not " ~ TOKname[token.id], input, token.pos);
   }
 
   private Token token; /// current token
@@ -502,9 +524,9 @@ void main(char[][] args)
   Reference[] refs;
   try
     refs = parser.parseReferences();
-  catch(Exception e)
+  catch(ParseError e)
   {
-    writefln("Reference List ", e);
+    writefln(e);
     return;
   }
 
