@@ -35,6 +35,10 @@ const int[NR_OF_CHAPTERS] verses_table = [
    6,   3,   5,   4,   5,   6
 ];
 
+/+
+  A table of offset values to the start of a chapter
+  in an array of all verses in the Qur'an.
++/
 const int[NR_OF_CHAPTERS] chapter_offset_table = [
     0,    7,  293,  493,  669,  789,
   954, 1160, 1235, 1364, 1473, 1596,
@@ -56,26 +60,6 @@ const int[NR_OF_CHAPTERS] chapter_offset_table = [
  6176, 6179, 6188, 6193, 6197, 6204,
  6207, 6213, 6216, 6221, 6225, 6230
 ];
-
-/**
-  Calculates the chapter index into an array of all 6236 verses.
-*/
-int getFlatChapterIndex(int chapter)
-in
-{
-  assert(0 <= chapter && chapter < NR_OF_CHAPTERS);
-}
-body
-{
-  int idx;
-  foreach(i, verses; verses_table)
-  {
-    if (i == chapter)
-      break;
-    idx += verses;
-  }
-  return idx;
-}
 
 enum TOK
 {
