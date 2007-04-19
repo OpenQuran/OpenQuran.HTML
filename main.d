@@ -35,6 +35,28 @@ const int[NR_OF_CHAPTERS] verses_table = [
    6,   3,   5,   4,   5,   6
 ];
 
+const int[NR_OF_CHAPTERS] chapter_offset_table = [
+    0,    7,  293,  493,  669,  789,
+  954, 1160, 1235, 1364, 1473, 1596,
+ 1707, 1750, 1802, 1901, 2029, 2140,
+ 2250, 2348, 2483, 2595, 2673, 2791,
+ 2855, 2932, 3159, 3252, 3340, 3409,
+ 3469, 3503, 3533, 3606, 3660, 3705,
+ 3788, 3970, 4058, 4133, 4218, 4272,
+ 4325, 4414, 4473, 4510, 4545, 4583,
+ 4612, 4630, 4675, 4735, 4784, 4846,
+ 4901, 4979, 5075, 5104, 5126, 5150,
+ 5163, 5177, 5188, 5199, 5217, 5229,
+ 5241, 5271, 5323, 5375, 5419, 5447,
+ 5475, 5495, 5551, 5591, 5622, 5672,
+ 5712, 5758, 5800, 5829, 5848, 5884,
+ 5909, 5931, 5948, 5967, 5993, 6023,
+ 6043, 6058, 6079, 6090, 6098, 6106,
+ 6125, 6130, 6138, 6146, 6157, 6168,
+ 6176, 6179, 6188, 6193, 6197, 6204,
+ 6207, 6213, 6216, 6221, 6225, 6230
+];
+
 /**
   Calculates the chapter index into an array of all 6236 verses.
 */
@@ -492,10 +514,23 @@ class Quran
       throw new Exception("Error: the header of the file \""~fileName~"\" is corrupt.");
   }
 
+  public char[][] chapter(int chapterIndex)
+  in { assert( 0 <= chapterIndex && chapterIndex < 114 ); }
+  body
+  {
+    int flatChapterIdx = chapter_offset_table[chapterIndex];
+    return verses[flatChapterIdx .. (flatChapterIdx + verses_table[chapterIndex])];
+  }
+
   private char[] author;
   private char[] language;
   private char[] fileName;
   private char[][] verses;
+}
+
+void search(char[] query, char[] references, char[][] authors)
+{
+
 }
 
 const char[] helpMessage =
@@ -503,7 +538,9 @@ const char[] helpMessage =
 Copyright (c) 2007 by Aziz Köksal
 Usage:
 
-quran <reference[[;] ...]> <translator[,...]>`;
+quran <reference[[;] ...]> <translator[,...]>
+quran search <query> <translator>`;
+
 
 void main(char[][] args)
 {
@@ -515,6 +552,10 @@ void main(char[][] args)
     return;
   }
 
+  if (args.length == 4 && args[1] == "search")
+  {
+//     search();
+  }
   char[] referenceList = args[1];
   char[][] authors = (args.length == 3) ? split(args[2], ",") : null;
 
@@ -546,9 +587,7 @@ void main(char[][] args)
     {
       foreach(cidx; aref.getChapterIndices())
       {
-        int flatChapterIdx = getFlatChapterIndex(cidx);
-        // Slice into chapter
-        char[][] chapter = quran.verses[flatChapterIdx .. (flatChapterIdx + verses_table[cidx])];
+        char[][] chapter = quran.chapter(cidx);
 
         foreach(vidx; aref.getVerseIndices(cidx))
         {
