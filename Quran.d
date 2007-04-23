@@ -2,7 +2,7 @@
   Author: Aziz Köksal
   License: GPL2
 */
-module quran;
+module Quran;
 
 import std.file;
 import std.string;
