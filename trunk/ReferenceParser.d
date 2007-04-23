@@ -5,7 +5,7 @@
 module ReferenceParser;
 
 import std.string;
-import quran;
+import Quran;
 
 enum TOK
 {

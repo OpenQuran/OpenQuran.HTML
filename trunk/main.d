@@ -6,7 +6,7 @@ module openquran;
 import std.stdio;
 import std.file;
 import std.string;
-import quran;
+import Quran;
 import ReferenceParser;
 
 /++
