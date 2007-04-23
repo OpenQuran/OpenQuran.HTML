@@ -20,13 +20,13 @@ enum TOK
 
 char[][TOK.max+1] TOKname =
 [
-  "Dash",
-  "Comma",
-  "Colon",
-  "Semicolon",
-  "Wildcard",
-  "Number",
-  "Eof"
+  "dash",
+  "comma",
+  "colon",
+  "semicolon",
+  "wildcard",
+  "number",
+  "eof"
 ];
 
 struct Token
