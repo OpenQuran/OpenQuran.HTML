@@ -41,30 +41,26 @@ int[2][] transformToRanges(int[] list)
   return result;
 }
 
-char[] ireplace(char[] s, char[] from, char[] to)
+/++
+  Replace occurences of from with to in source.
+  In order to preserve the casing of the matched string
+  you can provide a format string "%s" in "to" which will
+  be replaced with the found string.
+  NB.: This could be generalized with a callback delegate function.
++/
+char[] ireplace(char[] source, char[] from, char[] to)
 {
-  char[] p;
+  alias source s;
+  char[] result;
   int i;
-  size_t istart;
 
-  //printf("replace('%.*s','%.*s','%.*s')\n", s, from, to);
-  if (from.length == 0)
-    return s;
-  istart = 0;
-  while (istart < s.length)
+  while( (i = ifind(s, from)) != -1 )
   {
-    i = ifind(s[istart .. s.length], from);
-    if (i == -1)
-    {
-      p ~= s[istart .. s.length];
-      break;
-     }
-    p ~= s[istart .. istart + i];
-// writefln("istart:",istart," i:", i, " s[]:",s[istart+i-1], " len:",s.length, " flen:",from.length);
-    p ~= s[istart + i .. istart + i + from.length]; //to;
-    istart += i + from.length;
+    result ~= s[0 .. i] ~ replace(to, "%s", s[i .. i + from.length]);
+    s = s[i + from.length .. $];
   }
-  return p;
+  result ~= s;
+  return result;
 }
 
 void search(char[] query, char[] referenceList, char[][] authors, bool printRefs)
@@ -86,9 +82,8 @@ void search(char[] query, char[] referenceList, char[][] authors, bool printRefs
   {
     if( ifind(verse, query) != -1 )
     {
-      // Fixme: there is no ireplace function.
       writefln("\33[34m%03d:%03d\33[0m: ", cidx+1, vidx+1,
-               ireplace(verse, query, "\33[31m" ~ query ~ "\33[0m")
+               ireplace(verse, query, "\33[31m%s\33[0m")
       );
     }
   };
