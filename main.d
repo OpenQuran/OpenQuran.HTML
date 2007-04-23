@@ -149,65 +149,9 @@ void search(char[] query, char[] referenceList, char[][] authors, bool printRefs
     writef(\n);
   }
 }
-const char[] VERSION = "0.11";
-const char[] helpMessage =
-`openquran v`~VERSION~`
-Copyright (c) 2007 by Aziz Köksal
 
-Usage:
-
-  quran <reference[[;] ...]> <translator[,...]>
-  quran search [options] <query> <reference-list> <translators>
-`;
-
-const char[] searchMessage =
-`Search for a string in the Qur'an.
-Usage:
-  quran search [options] <query> <reference-list> <translators>
-
-Options:
-  -p            : print numerical references instead of the actual verses.
-
-Examples:
-  quran search Moses "*" pickthal,shakir
-  quran search -p Allah "42-93" yusufali
-`;
-
-void main(char[][] args)
+void show(char[] referenceList, char[][] authors, int options, int randomNUM)
 {
-  if ( args.length <= 1 ||
-      (args.length == 2 && (args[1] == "--help" || args[1] == "-h"))
-     )
-  {
-    writefln(helpMessage);
-    return;
-  }
-
-  if (args[1] == "search")
-  {
-    if (args[2] == "--help")
-    {
-      writefln(searchMessage);
-      return;
-    }
-
-    bool printRefs = false;
-    if (args[2] == "-p")
-    {
-      printRefs = true;
-      args[2..$-1] = args[3..$].dup;
-      args.length = args.length -1;
-    }
-    try
-      search(args[2], args[3], split(args[4], ","), printRefs);
-    catch(Exception e)
-      writefln(e);
-    return;
-  }
-
-  char[] referenceList = args[1];
-  char[][] authors = (args.length == 3) ? split(args[2], ",") : null;
-
   // Parse reference list
   auto parser = new ReferenceListParser(referenceList);
 
@@ -244,5 +188,112 @@ void main(char[][] args)
         }
       }
     }
+  }
+}
+
+const char[] VERSION = "0.12";
+const char[] helpMessage =
+`openquran v`~VERSION~`
+Copyright (c) 2007 by Aziz Köksal
+
+Usage:
+  quran show [options] <references> <authors>
+  quran search [options] <query> <references> <authors>
+
+Type 'quran help <sub-command>' for more help on a particular sub-command.
+`;
+
+const char[] showMessage =
+`Show verses from the Qur'an.
+Usage:
+  quran show [options] <references> <authors>
+
+Options:
+  -r           : print a random verse.
+  -rNUM        : print NUM random verses.
+  -a           : when printing verses alternate between authors.
+
+Examples:
+  quran show 113-114 yusufali
+  quran show -a "*:1" pickthal,shakir
+`;
+
+const char[] searchMessage =
+`Search for a string in the Qur'an.
+Usage:
+  quran search [options] <query> <references> <authors>
+
+Options:
+  -p            : print numerical references instead of the actual verses.
+
+Examples:
+  quran search Moses "*" pickthal,shakir
+  quran search -p Allah "42-93" yusufali
+`;
+
+void printHelp(char[] about)
+{
+  if (about == "show")
+    writefln(showMessage);
+  else if (about == "search")
+    writefln(searchMessage);
+  else
+    writefln(helpMessage);
+}
+
+void main(char[][] args)
+{
+  if (args.length <= 1)
+    return printHelp("");
+
+  switch (args[1])
+  {
+    case "search":
+      if (args.length < 5 || args[2] == "--help")
+        return printHelp("search");
+      args = args[2..$];
+
+      bool printRefs = false;
+      if (args[0] == "-p")
+      {
+        printRefs = true;
+        args = args[1..$];
+      }
+      try
+        search(args[0], args[1], split(args[2], ","), printRefs);
+      catch(Exception e)
+        writefln(e);
+      return;
+    case "show":
+      if (args.length < 4 || args[2] == "--help")
+        return printHelp("show");
+      args = args[2..$];
+
+      int options;
+      int randomNUM;
+
+      while (args.length)
+      {
+        if (args[0] == "-a")
+          options |= 0x01;
+        else if(find(args[0], "-r") == 0)
+        {
+          options |= 0x02;
+          if (args[0].length > 2)
+            randomNUM = atoi(args[0][3..$]);
+        }
+        else
+          break;
+        args = args[1..$];
+      }
+
+      show(args[0], split(args[1], ","), options, randomNUM);
+      return;
+    case "help":
+      if (args.length > 2)
+        return printHelp(args[2]);
+    default:
+      printHelp("");
+      return;
   }
 }
