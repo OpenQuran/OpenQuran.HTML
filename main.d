@@ -6,6 +6,7 @@ module openquran;
 import std.stdio;
 import std.file;
 import std.string;
+import std.random;
 import Quran;
 import ReferenceParser;
 
@@ -152,16 +153,30 @@ void search(char[] query, char[] referenceList, char[][] authors, bool printRefs
 
 void show(char[] referenceList, char[][] authors, int options, int randomNUM)
 {
-  // Parse reference list
-  auto parser = new ReferenceListParser(referenceList);
-
   Reference[] refs;
-  try
-    refs = parser.parseReferences();
-  catch(ParseError e)
+
+  if (options & 0x02)
   {
-    writefln(e);
-    return;
+    if (randomNUM < 1)
+      randomNUM = 1;
+    do
+    {
+      uint cidx = rand() % 114;
+      uint vidx = rand() % verses_table[cidx];
+      refs ~= new Reference([new Range(Range.Type.Number, cidx+1)], [new Range(Range.Type.Number, vidx+1)]);
+    } while(--randomNUM)
+  }
+  else
+  {
+    // Parse reference list
+    auto parser = new ReferenceListParser(referenceList);
+    try
+      refs = parser.parseReferences();
+    catch(ParseError e)
+    {
+      writefln(e);
+      return;
+    }
   }
 
   // Load files
@@ -218,7 +233,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-const char[] VERSION = "0.13";
+const char[] VERSION = "0.14";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
@@ -239,6 +254,21 @@ Options:
   -r           : print a random verse.
   -rNUM        : print NUM random verses.
   -a           : when printing verses alternate between authors.
+
+References:
+  A reference is composed of a chapter part and a verse part
+  separated by a colon (CP:VP). In both parts you can specify
+  a list of numbers and ranges separated by a comma.
+  Separate multiple references with a semicolon or a space.
+  E.g.:
+  1:3 2:286          # Chapter 1, Verse 3. Chapter 2, Verse 286.
+  1,8:19,2,9,5,7     # Chapter 1 and 8, Verses 19,2,9,5,7.
+  38-98,100:5-10,18  # Chapter 38 to 98 and 100, Verses 5 to 10 and 18.
+  2-10:4-*           # Chapter 2 to 10, Verses 4 to end of each chapter.
+  *:1,2              # First two verses of all chapters (equiv. to 1-114:1,2).
+
+Authors:
+  A list of authors separated by a comma (no spaces allowed.)
 
 Examples:
   quran show 113-114 yusufali
@@ -307,7 +337,7 @@ void main(char[][] args)
         {
           options |= 0x02;
           if (args[0].length > 2)
-            randomNUM = atoi(args[0][3..$]);
+            randomNUM = atoi(args[0][2..$]);
         }
         else
           break;
