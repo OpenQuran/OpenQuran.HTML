@@ -172,26 +172,53 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
     catch(Exception e)
       writefln(e);
 
-  // Output verses of each author in sequential order.
-  foreach(quran; qurans)
-  {
-    writefln("[\33[32m%s\33[0m]", quran.getAuthor);
+  if (options & 0x01 && qurans.length > 1)
+  { // Output verses of each author in alternating order.
+    char[] formatString = "\33[32m%%%ds\33[0m: ";
+    uint padding;
+    foreach(quran; qurans)
+      if (padding < quran.getAuthor.length)
+        padding = quran.getAuthor.length;
+    formatString = format(formatString, padding);
+
     foreach(aref; refs)
     {
       foreach(cidx; aref.getChapterIndices())
       {
-        char[][] chapter = quran.chapter(cidx);
-
         foreach(vidx; aref.getVerseIndices(cidx))
         {
-          writefln("\33[34m%03d:%03d\33[0m: ", cidx+1, vidx+1, chapter[vidx]);
+          writefln("[\33[34m%03d:%03d\33[0m]", cidx+1, vidx+1);
+          foreach(quran; qurans)
+          {
+            char[][] chapter = quran.chapter(cidx);
+            writefln(formatString, quran.getAuthor, chapter[vidx]);
+          }
+        }
+      }
+    }
+  }
+  else
+  { // Output verses of each author in sequential order.
+    foreach(quran; qurans)
+    {
+      writefln("[\33[32m%s\33[0m]", quran.getAuthor);
+      foreach(aref; refs)
+      {
+        foreach(cidx; aref.getChapterIndices())
+        {
+          char[][] chapter = quran.chapter(cidx);
+
+          foreach(vidx; aref.getVerseIndices(cidx))
+          {
+            writefln("\33[34m%03d:%03d\33[0m: ", cidx+1, vidx+1, chapter[vidx]);
+          }
         }
       }
     }
   }
 }
 
-const char[] VERSION = "0.12";
+const char[] VERSION = "0.13";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
