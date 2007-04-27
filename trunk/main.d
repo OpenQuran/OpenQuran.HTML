@@ -79,75 +79,96 @@ void search(char[] query, char[] referenceList, char[][] authors, bool printRefs
     catch(Exception e)
       writefln(e);
 
-  auto printVerses = delegate(int cidx, int vidx, char[] verse)
+  if (printRefs)
   {
-    if( ifind(verse, query) != -1 )
+    void prettyPrintReferences(int[][int] foundRefs)
     {
-      writefln("\33[34m%03d:%03d\33[0m: ", cidx+1, vidx+1,
-               ireplace(verse, query, "\33[31m%s\33[0m")
-      );
-    }
-  };
-
-  int[][int] foundRefs;
-  auto printReferences = delegate(int cidx, int vidx, char[] verse)
-  {
-    if( ifind(verse, query) != -1 )
-      foundRefs[cidx+1] ~= vidx+1;
-  };
-
-  // The actual function that will be called in the foreach loop.
-  auto operation = printRefs ? printReferences : printVerses;
-
-  foreach(quran; qurans)
-  {
-    writefln("[\33[32m%s\33[0m]", quran.getAuthor);
-    foreach(aref; refs)
-    {
-      foreach(cidx; aref.getChapterIndices())
+      // Pretty format found references.
+      char[][] refStrings;
+      foreach (cidx; foundRefs.keys.sort)
       {
-        char[][] chapter = quran.chapter(cidx);
+        char[] verselist;
+        int[2][] ranges = transformToRanges(foundRefs[cidx]);
 
-        foreach(vidx; aref.getVerseIndices(cidx))
+        // Leave out the range if it matches the number of verses
+        // in the current chapter.
+        // E.g. "1:1-7" becomes "1"
+        if (ranges.length == 1 &&
+            ranges[0][0]  == 1 && ranges[0][1] == verses_table[cidx-1])
         {
-          operation(cidx, vidx, chapter[vidx]);
+          refStrings ~= format(cidx);
+          continue;
+        }
+
+        foreach (range; ranges)
+          if (range[1])
+            verselist ~= format(range[0], '-', range[1], ',');
+          else
+            verselist ~= format(range[0], ',');
+        verselist.length = verselist.length -1;
+
+        refStrings ~= format(cidx, ':', verselist);
+      }
+
+      if (refStrings.length)
+      {
+        foreach(str; refStrings[0..$-1])
+          writef(str, "; ");
+        writefln(refStrings[$-1], ";");
+      }
+    }
+
+    foreach (quran; qurans)
+    {
+      writefln("[\33[32m%s\33[0m]", quran.getAuthor);
+      int[][int] foundRefs;
+      uint matches;
+      foreach (aref; refs)
+      {
+        foreach (cidx; aref.getChapterIndices())
+        {
+          char[][] chapter = quran.chapter(cidx);
+
+          foreach (vidx; aref.getVerseIndices(cidx))
+          {
+            if (ifind(chapter[vidx], query) != -1)
+            {
+              foundRefs[cidx+1] ~= vidx+1;
+              ++matches;
+            }
+          }
         }
       }
+      prettyPrintReferences(foundRefs);
+      writefln("Found %d match%s!", matches, matches == 1 ? "" : "es");
     }
   }
-  // BUG: found refs aren't counted separately for each author
-  if (foundRefs)
+  else
   {
-    // Pretty format found references.
-    char[][] refStrings;
-    foreach(cidx; foundRefs.keys.sort)
+    foreach (quran; qurans)
     {
-      int[] vidcs = foundRefs[cidx];
-      char[] verselist;
-      int[2][] ranges = transformToRanges(vidcs);
-
-      // Leave out the range if it matches the number of verses
-      // in the current chapter.
-      if(ranges.length == 1 &&
-         ranges[0][0]  == 1 && ranges[0][1] == verses_table[cidx-1])
+      writefln("[\33[32m%s\33[0m]", quran.getAuthor);
+      uint matches;
+      foreach (aref; refs)
       {
-        refStrings ~= format(cidx);
-        continue;
+        foreach (cidx; aref.getChapterIndices())
+        {
+          char[][] chapter = quran.chapter(cidx);
+
+          foreach (vidx; aref.getVerseIndices(cidx))
+          {
+            if (ifind(chapter[vidx], query) != -1)
+            {
+              writefln("\33[34m%03d:%03d\33[0m: ", cidx+1, vidx+1,
+                      ireplace(chapter[vidx], query, "\33[31m%s\33[0m")
+              );
+              ++matches;
+            }
+          }
+        }
       }
-
-      foreach(range; ranges)
-        if (range[1])
-          verselist ~= format(range[0], '-', range[1], ',');
-        else
-          verselist ~= format(range[0], ',');
-      verselist.length = verselist.length -1;
-
-      refStrings ~= format(cidx, ':', verselist);
+      writefln("Found %d match%s!", matches, matches == 1 ? "" : "es");
     }
-    writef(refStrings[0]);
-    foreach(str; refStrings[1..$])
-      writef("; ", str);
-    writef(\n);
   }
 }
 
