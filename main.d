@@ -115,7 +115,7 @@ void search(char[] query, char[] referenceList, char[][] authors, bool printRefs
       }
     }
   }
-
+  // BUG: found refs aren't counted separately for each author
   if (foundRefs)
   {
     // Pretty format found references.
@@ -233,7 +233,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-const char[] VERSION = "0.14";
+const char[] VERSION = "0.15";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
@@ -278,13 +278,16 @@ Examples:
 const char[] searchMessage =
 `Search for a string in the Qur'an.
 Usage:
-  quran search [options] <query> <references> <authors>
+  quran search [options] <query> [references] <authors>
 
 Options:
   -p            : print numerical references instead of the actual verses.
 
+References:
+  If not omitted you can restrict your query to a specific part of the Qur'an.
+
 Examples:
-  quran search Moses "*" pickthal,shakir
+  quran search Moses pickthal,shakir
   quran search -p Allah "42-93" yusufali
 `;
 
@@ -306,7 +309,7 @@ void main(char[][] args)
   switch (args[1])
   {
     case "search":
-      if (args.length < 5 || args[2] == "--help")
+      if (args.length < 4 || args[2] == "--help")
         return printHelp("search");
       args = args[2..$];
 
@@ -315,6 +318,13 @@ void main(char[][] args)
       {
         printRefs = true;
         args = args[1..$];
+      }
+      if (args.length < 3)
+      {
+        // Implicitly add "*" when references were omitted.
+        args.length = args.length + 1;
+        args[2..$] = args[1..$-1].dup;
+        args[1] = "*";
       }
       try
         search(args[0], args[1], split(args[2], ","), printRefs);
@@ -343,7 +353,12 @@ void main(char[][] args)
           break;
         args = args[1..$];
       }
-
+      if (args.length < 2)
+      {
+        args.length = args.length + 1;
+        args[1..$] = args[0..$-1].dup;
+        args[0] = "*";
+      }
       show(args[0], split(args[1], ","), options, randomNUM);
       return;
     case "help":
