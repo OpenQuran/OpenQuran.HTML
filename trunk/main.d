@@ -248,7 +248,7 @@ Type 'quran help <sub-command>' for more help on a particular sub-command.
 const char[] showMessage =
 `Show verses from the Qur'an.
 Usage:
-  quran show [options] <references> <authors>
+  quran show <references> <authors> [options]
 
 Options:
   -r           : print a random verse.
@@ -339,27 +339,35 @@ void main(char[][] args)
       int options;
       int randomNUM;
 
-      while (args.length)
+      char[][] showArgs;
+      foreach (arg; args)
       {
-        if (args[0] == "-a")
+        if (arg == "-a")
           options |= 0x01;
-        else if(find(args[0], "-r") == 0)
+        else if (find(arg, "-r") == 0)
         {
           options |= 0x02;
-          if (args[0].length > 2)
-            randomNUM = atoi(args[0][2..$]);
+          if (arg.length > 2)
+            randomNUM = atoi(arg[2..$]);
         }
         else
-          break;
-        args = args[1..$];
+        {
+          showArgs ~= arg;
+        }
       }
-      if (args.length < 2)
+
+      if (showArgs.length < 2 && options & 0x02)
       {
-        args.length = args.length + 1;
-        args[1..$] = args[0..$-1].dup;
-        args[0] = "*";
+        // Insert "*" if <references> was omitted and -r was specified.
+        showArgs.length = showArgs.length + 1;
+        showArgs[1..$] = showArgs[0..$-1].dup;
+        showArgs[0] = "*";
       }
-      show(args[0], split(args[1], ","), options, randomNUM);
+
+      if (showArgs.length < 2)
+        return printHelp("show");
+
+      show(showArgs[0], split(showArgs[1], ","), options, randomNUM);
       return;
     case "help":
       if (args.length > 2)
