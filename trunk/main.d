@@ -278,7 +278,7 @@ Examples:
 const char[] searchMessage =
 `Search for a string in the Qur'an.
 Usage:
-  quran search [options] <query> [references] <authors>
+  quran search <query> [references] <authors> [options]
 
 Options:
   -p            : print numerical references instead of the actual verses.
@@ -314,20 +314,30 @@ void main(char[][] args)
       args = args[2..$];
 
       bool printRefs = false;
-      if (args[0] == "-p")
+      char[][] searchArgs;
+      foreach (arg; args)
       {
-        printRefs = true;
-        args = args[1..$];
+        if (arg == "-p")
+        {
+          printRefs = true;
+        }
+        else
+          searchArgs ~= arg;
       }
-      if (args.length < 3)
+
+      if (searchArgs.length < 3)
       {
         // Implicitly add "*" when references were omitted.
-        args.length = args.length + 1;
-        args[2..$] = args[1..$-1].dup;
-        args[1] = "*";
+        searchArgs.length = searchArgs.length + 1;
+        searchArgs[2..$] = searchArgs[1..$-1].dup;
+        searchArgs[1] = "*";
       }
+
+      if (searchArgs.length < 3)
+        return printHelp("search");
+
       try
-        search(args[0], args[1], split(args[2], ","), printRefs);
+        search(searchArgs[0], searchArgs[1], split(searchArgs[2], ","), printRefs);
       catch(Exception e)
         writefln(e);
       return;
