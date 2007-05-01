@@ -64,6 +64,9 @@ char[] ireplace(char[] source, char[] from, char[] to)
   return result;
 }
 
+/++
+  Print verses from the Qur'an matching the query.
++/
 void search(char[] query, char[] referenceList, char[][] authors, bool printRefs)
 {
   // Parse reference list
@@ -117,7 +120,7 @@ void search(char[] query, char[] referenceList, char[][] authors, bool printRefs
         writefln(refStrings[$-1], ";");
       }
     }
-
+    Query[] queries = parseQuery(query);
     foreach (quran; qurans)
     {
       writefln("[\33[32m%s\33[0m]", quran.getAuthor);
@@ -131,7 +134,8 @@ void search(char[] query, char[] referenceList, char[][] authors, bool printRefs
 
           foreach (vidx; aref.getVerseIndices(cidx))
           {
-            if (ifind(chapter[vidx], query) != -1)
+//             if (ifind(chapter[vidx], query) != -1)
+            if (Query.findAll(queries, chapter[vidx]))
             {
               foundRefs[cidx+1] ~= vidx+1;
               ++matches;
@@ -210,13 +214,14 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
 
   if (options & 0x01 && qurans.length > 1)
   { // Output verses of each author in alternating order.
+/+
     char[] formatString = "\33[32m%%%ds\33[0m: ";
     uint padding;
     foreach(quran; qurans)
       if (padding < quran.getAuthor.length)
         padding = quran.getAuthor.length;
     formatString = format(formatString, padding);
-
++/
     foreach(aref; refs)
     {
       foreach(cidx; aref.getChapterIndices())
@@ -227,7 +232,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
           foreach(quran; qurans)
           {
             char[][] chapter = quran.chapter(cidx);
-            writefln(formatString, quran.getAuthor, chapter[vidx]);
+            writefln("\33[32m%s\33[0m:\n", quran.getAuthor, chapter[vidx]);
           }
         }
       }
@@ -254,7 +259,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-const char[] VERSION = "0.15";
+const char[] VERSION = "0.16";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
@@ -320,6 +325,169 @@ void printHelp(char[] about)
     writefln(searchMessage);
   else
     writefln(helpMessage);
+}
+
+static import std.regexp;
+alias std.regexp RX;
+
+abstract class Query
+{
+  this(char[] query)
+  { this.query = query; }
+
+  int find(char[]);
+
+//   public int find(char[], int[2][]);
+
+  static bool findAll(Query[] queries, char[] text)
+  {
+    bool found = queries.length ? true : false;
+    foreach(query; queries)
+    {
+      found = found && query.find(text);
+    }
+    return found;
+  }
+
+  char[] toString()
+  {
+    return query;
+  }
+
+  char[] query;
+}
+
+class SimpleQuery : Query
+{
+  this(char[] query)
+  { super(query); }
+
+  int find(char[] text)
+  {
+    return ifind(text, query) != -1;
+  }
+}
+
+import fuzzy;
+class FuzzyQuery : Query
+{
+  this(char[] query)
+  { super(query); }
+
+  int find(char[] text)
+  {
+    char[][] words = splitUniAlpha(text);
+    foreach(word; words)
+    {
+      uint maxDistance = query.length > word.length ? query.length : word.length;
+      uint levDistance = levenshteinDistance(query, word);
+      if (levDistance == 0)
+      {
+        return 1; // Exact match
+      }
+      if ((cast(float)levDistance / maxDistance) <= 0.3)
+      {
+        return 1; // Deviates about 30 percent
+      }
+    }
+    return 0;
+  }
+}
+
+class RegExQuery : Query
+{
+  this(char[] query, char[] flags)
+  {
+    super(query);
+    rx = new RX.RegExp(query, flags);
+  }
+  int find(char[] text)
+  {
+    return rx.test(text);
+  }
+  RX.RegExp rx;
+}
+
+import std.uni, std.utf;
+Query[] parseQuery(char[] query)
+{
+  dchar[] q = toUTF32(query);
+  Query[] queries;
+
+  for (uint i; i < q.length; ++i)
+  {
+    dchar c = q[i];
+    if (isUniAlpha(c) || ('0' <= c && c <= '9'))
+    {
+      uint end = i + 1;
+      for (; end < q.length; ++end)
+      {
+        dchar d = q[end];
+        if (!(isUniAlpha(d) || ('0' <= d && d <= '9')))
+          break;
+      }
+      queries ~= new SimpleQuery(toUTF8(q[i .. end]));
+      i = end - 1;
+    }
+    else if (c == '~')
+    {
+      ++i;
+      uint end = i;
+      for (; end < q.length; ++end)
+      {
+        dchar d = q[end];
+        if (!(isUniAlpha(d) || ('0' <= d && d <= '9')))
+          break;
+      }
+      if (end == i)
+        throw new Error("No characters found after '~'.");
+      queries ~= new FuzzyQuery(toUTF8(q[i .. end]));
+      i = end - 1;
+    }
+    else if (c == '/')
+    {
+      ++i;
+      int end = i;
+      for (; end < q.length && q[end] != '/'; ++end)
+      {}
+      if (end == q.length || q[end] != '/')
+        throw new Error("Terminating slash of regular expression not found.\n");
+
+      char[] flags;
+      if (end + 1 < q.length)
+        if (q[end + 1] == 'i')
+          flags = "i";
+      queries ~= new RegExQuery(toUTF8(q[i .. end]), flags);
+      i = end + flags.length;
+    }
+  }
+
+  return queries;
+}
+
+char[][] splitUniAlpha(char[] text)
+{
+  char[][] result;
+  uint i, j;
+  dchar c = decode(text, j);
+  for(; i < text.length; (c = decode(text, j)))
+  {
+    if (isUniAlpha(c))
+    {
+      uint end = text.length;
+      foreach (k, dchar d; text[j..$])
+        if (!isUniAlpha(d))
+        {
+          end = j+k;
+          break;
+        }
+      result ~= tolower(text[i..end]);
+      i = end;
+      j = end;
+    }
+    else i = j;
+  }
+  return result;
 }
 
 void main(char[][] args)
