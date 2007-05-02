@@ -64,10 +64,18 @@ char[] ireplace(char[] source, char[] from, char[] to)
   return result;
 }
 
+/// Options that can be provided through the command line.
+enum Options
+{
+  Alternating = 1, /// Print verses in alternating order.
+  References = 2,  /// Print references as the result of a search.
+  Random = 4,      /// Print a random verse.
+}
+
 /++
   Print verses from the Qur'an matching the query.
 +/
-void search(char[] query, char[] referenceList, char[][] authors, bool printRefs)
+void search(char[] query, char[] referenceList, char[][] authors, int options)
 {
   // Parse reference list
   auto parser = new ReferenceListParser(referenceList);
@@ -82,7 +90,7 @@ void search(char[] query, char[] referenceList, char[][] authors, bool printRefs
     catch(Exception e)
       writefln(e);
 
-  if (printRefs)
+  if (options & Options.References)
   {
     void prettyPrintReferences(int[][int] foundRefs)
     {
@@ -180,7 +188,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
 {
   Reference[] refs;
 
-  if (options & 0x02)
+  if (options & Options.Random)
   {
     if (randomNUM < 1)
       randomNUM = 1;
@@ -212,7 +220,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
     catch(Exception e)
       writefln(e);
 
-  if (options & 0x01 && qurans.length > 1)
+  if (options & Options.Alternating && qurans.length > 1)
   { // Output verses of each author in alternating order.
 /+
     char[] formatString = "\33[32m%%%ds\33[0m: ";
@@ -259,7 +267,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-const char[] VERSION = "0.16";
+const char[] VERSION = "0.17";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
@@ -502,14 +510,13 @@ void main(char[][] args)
         return printHelp("search");
       args = args[2..$];
 
-      bool printRefs = false;
+      int options;
       char[][] searchArgs;
+
       foreach (arg; args)
       {
         if (arg == "-p")
-        {
-          printRefs = true;
-        }
+          options |= Options.References;
         else
           searchArgs ~= arg;
       }
@@ -526,7 +533,7 @@ void main(char[][] args)
         return printHelp("search");
 
       try
-        search(searchArgs[0], searchArgs[1], split(searchArgs[2], ","), printRefs);
+        search(searchArgs[0], searchArgs[1], split(searchArgs[2], ","), options);
       catch(Exception e)
         writefln(e);
       return;
@@ -542,10 +549,10 @@ void main(char[][] args)
       foreach (arg; args)
       {
         if (arg == "-a")
-          options |= 0x01;
+          options |= Options.Alternating;
         else if (find(arg, "-r") == 0)
         {
-          options |= 0x02;
+          options |= Options.Random;
           if (arg.length > 2)
             randomNUM = atoi(arg[2..$]);
         }
@@ -555,7 +562,7 @@ void main(char[][] args)
         }
       }
 
-      if (showArgs.length < 2 && options & 0x02)
+      if (showArgs.length < 2 && options & Options.Random)
       {
         // Insert "*" if <references> was omitted and -r was specified.
         showArgs.length = showArgs.length + 1;
