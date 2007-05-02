@@ -70,6 +70,7 @@ enum Options
   Alternating = 1, /// Print verses in alternating order.
   References = 2,  /// Print references as the result of a search.
   Random = 4,      /// Print a random verse.
+  MatchAny = 8     /// Match any word in the query.
 }
 
 /++
@@ -128,7 +129,10 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
         writefln(refStrings[$-1], ";");
       }
     }
+
     Query[] queries = parseQuery(query);
+    auto predicate = options & Options.MatchAny ? &Query.findAny : &Query.findAll;
+
     foreach (quran; qurans)
     {
       writefln("[\33[32m%s\33[0m]", quran.getAuthor);
@@ -143,7 +147,7 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
           foreach (vidx; aref.getVerseIndices(cidx))
           {
 //             if (ifind(chapter[vidx], query) != -1)
-            if (Query.findAll(queries, chapter[vidx]))
+            if (predicate(queries, chapter[vidx]))
             {
               foundRefs[cidx+1] ~= vidx+1;
               ++matches;
@@ -315,7 +319,17 @@ Usage:
   quran search <query> [references] <authors> [options]
 
 Options:
-  -p            : print numerical references instead of the actual verses.
+  -p            : print numerical references instead of text.
+  -any          : do an OR-search instead of the default AND-search.
+
+Query:
+  A usual query consists of one or many words. There is support for
+  powerful regular expressions and fuzzy word-matching.
+  A slash starts a regular expression and a second one closes it:
+    /M[ou]hamm[ae]d/  # Search for all 4 variants of spelling this word.
+    /we|he|she/i      # The flag 'i' is for case-insensitive search.
+  A tilde at the start of a word marks it for fuzzy searching:
+    ~adhan
 
 References:
   If not omitted you can restrict your query to a specific part of the Qur'an.
@@ -355,6 +369,14 @@ abstract class Query
       found = found && query.find(text);
     }
     return found;
+  }
+
+  static bool findAny(Query[] queries, char[] text)
+  {
+    foreach(query; queries)
+      if (query.find(text))
+        return true;
+    return false;
   }
 
   char[] toString()
@@ -515,8 +537,13 @@ void main(char[][] args)
 
       foreach (arg; args)
       {
-        if (arg == "-p")
-          options |= Options.References;
+        if (find(arg, "-") == 0)
+        {
+          if (arg == "-p")
+            options |= Options.References;
+          else if (arg == "-any")
+            options |= Options.MatchAny;
+        }
         else
           searchArgs ~= arg;
       }

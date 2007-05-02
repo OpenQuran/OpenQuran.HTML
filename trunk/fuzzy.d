@@ -1,5 +1,10 @@
+/**
+  Author: Aziz Köksal
+  License: GPL2
+*/
 module fuzzy;
 import std.stdio;
+import std.utf;
 
 int min(int a, int b, int c)
 {
@@ -11,13 +16,24 @@ int min(int a, int b, int c)
   return m;
 }
 
+size_t utf8len(char[] s)
+{
+  size_t res;
+  while (s.length)
+  {
+    s = s[stride(s, 0)..$];
+    ++res;
+  }
+  return res;
+}
+
 int levenshteinDistance(char[] str1, char[] str2)
 {
   int d[2][];
   int i, j, cost;
 
   // Only two rows are needed
-  d[0] = new int[str2.length + 1];
+  d[0] = new int[utf8len(str2) + 1];
   d[1] = d[0].dup;
 
 //   d[0][0] = 0;
@@ -50,5 +66,5 @@ int levenshteinDistance(char[] str1, char[] str2)
     d[0] = d[1];
     d[1] = tmp;
   }
-  return d[0][str2.length];
+  return d[0][j];
 }
