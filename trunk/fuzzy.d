@@ -42,10 +42,10 @@ int levenshteinDistance(char[] str1, char[] str2)
     ++j;
     d[0][j] = j;
   }
-// writefln(0, " ",d[0]);
+// writefln("      ", str2, "\n", 0, "  ", d[0]);
   foreach (dchar di; str1)
   {
-    d[1][0] = i+1;
+    d[1][0] = ++i;
     j=0;
     foreach (dchar dj; str2)
     {
@@ -59,8 +59,7 @@ int levenshteinDistance(char[] str1, char[] str2)
 // writefln("%s == %s, ", di, dj, d[1][j+1]);
       ++j;
     }
-    ++i;
-// writefln(i+1, " ",d[1]);
+// writefln(i, " ", di, d[1]);
     // Swap rows
     int[] tmp = d[0];
     d[0] = d[1];

@@ -75,6 +75,12 @@ enum Options
 
 /++
   Print verses from the Qur'an matching the query.
+  Params:
+    query = a list of words with optional special characters
+            for regular expressions and fuzzy word-matching
+    referenceList = restrict the search to this list of references
+    authors = a list of authors to search in
+    options = some flags from the enum Options
 +/
 void search(char[] query, char[] referenceList, char[][] authors, int options)
 {
@@ -161,6 +167,9 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
   }
   else
   {
+    Query[] queries = parseQuery(query);
+    auto predicate = options & Options.MatchAny ? &Query.findAny2 : &Query.findAll2;
+
     foreach (quran; qurans)
     {
       writefln("[\33[32m%s\33[0m]", quran.getAuthor);
@@ -173,10 +182,12 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
 
           foreach (vidx; aref.getVerseIndices(cidx))
           {
-            if (ifind(chapter[vidx], query) != -1)
+//             if (predicate(queries, chapter[vidx]))
+            int[2][] matchIndices;
+            if (predicate(queries, chapter[vidx], matchIndices))
             {
               writefln("\33[34m%03d:%03d\33[0m: ", cidx+1, vidx+1,
-                      ireplace(chapter[vidx], query, "\33[31m%s\33[0m")
+                      highlightMatches(chapter[vidx], matchIndices)
               );
               ++matches;
             }
@@ -188,6 +199,65 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
   }
 }
 
+/++
+  A simple implementation of the quicksort algorithm.
++/
+int[2][] quicksort(int[2][] list)
+{
+  int[2][] less, pivotList, greater;
+  if (list.length <= 1)
+    return list;
+  int pivot = list[0][0];
+  foreach(x; list)
+    if (x[0] < pivot)
+      less ~= x;
+    else if (x[0] > pivot)
+      greater ~= x;
+    else /*if (x[0] == pivot)*/
+      pivotList ~= x;
+  return quicksort(less) ~ pivotList ~ quicksort(greater);
+}
+
+char[] highlightMatches(char[] text, int[2][] matchIndices)
+{
+  // Sort the match tuples
+  matchIndices = quicksort(matchIndices);
+  // Merge overlapping slices.
+  int[2][] tmp;
+  int i;
+  for (; i < (matchIndices.length -1); ++i)
+  {
+    alias matchIndices m;
+    if ((m[i][1]) >= m[i+1][0])
+    {
+      tmp ~= [m[i][0], m[i+1][1]];
+      ++i;
+    }
+    else
+      tmp ~= m[i];
+  }
+  if (i != matchIndices.length)
+    tmp ~= matchIndices[$-1];
+  // Iterate over the tuples and output a formatted string
+  int start;
+  char[] hltext;
+  for (i=0; i < tmp.length; ++i)
+  {
+    hltext ~= text[start..tmp[i][0]] ~ "\33[31m" ~ text[tmp[i][0]..tmp[i][1]] ~ "\33[0m";
+    start = tmp[i][1];
+  }
+  hltext ~= text[start..$];
+  return hltext;
+}
+
+/++
+  Print verses from the Qur'an.
+  Params:
+   referenceList = the list of numerical references
+   authors       = the list of authors to fetch verses from
+   options       = some flags from the enum Options
+   randomNUM     = the number of verses to fetch randomly
++/
 void show(char[] referenceList, char[][] authors, int options, int randomNUM)
 {
   Reference[] refs;
@@ -271,7 +341,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-const char[] VERSION = "0.17";
+const char[] VERSION = "0.18";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
@@ -359,15 +429,22 @@ abstract class Query
 
   int find(char[]);
 
-//   public int find(char[], int[2][]);
+  int find(char[], ref int[2][]);
+
 
   static bool findAll(Query[] queries, char[] text)
   {
     bool found = queries.length ? true : false;
     foreach(query; queries)
-    {
       found = found && query.find(text);
-    }
+    return found;
+  }
+
+  static bool findAll2(Query[] queries, char[] text, ref int[2][] matchIndices)
+  {
+    bool found = queries.length ? true : false;
+    foreach(query; queries)
+      found = found && query.find(text, matchIndices);
     return found;
   }
 
@@ -378,6 +455,15 @@ abstract class Query
         return true;
     return false;
   }
+
+  static bool findAny2(Query[] queries, char[] text, ref int[2][] matchIndices)
+  {
+    foreach(query; queries)
+      if (query.find(text, matchIndices))
+        return true;
+    return false;
+  }
+
 
   char[] toString()
   {
@@ -392,6 +478,18 @@ class SimpleQuery : Query
   this(char[] query)
   { super(query); }
 
+  int find(char[] text, ref int[2][] matchIndices)
+  {
+    uint start, total;
+    while ((start = ifind(text[total .. $], query)) != -1 )
+    {
+      total += start;
+      matchIndices ~= [total, total + query.length];
+      total += query.length;
+    }
+    return total != 0;
+  }
+
   int find(char[] text)
   {
     return ifind(text, query) != -1;
@@ -402,7 +500,29 @@ import fuzzy;
 class FuzzyQuery : Query
 {
   this(char[] query)
-  { super(query); }
+  { super(tolower(query)); }
+
+  int find(char[] text, ref int[2][] matchIndices)
+  {
+    char[][] words = splitUniAlpha(text);
+    int matchIndicesLen = matchIndices.length;
+    int start;
+    foreach(word; words)
+    {
+      uint maxDistance = query.length > word.length ? query.length : word.length;
+      uint levDistance = levenshteinDistance(query, tolower(word));
+      if (levDistance == 0 ||
+          (cast(float)levDistance / maxDistance) <= 0.3)
+      {
+        // TODO: ifind() is unnecessary.
+        // splitUniAlpha should return indices as well.
+        start = start + ifind(text[start..$], word);
+        matchIndices ~= [start, start + word.length];
+        start += word.length;
+      }
+    }
+    return matchIndicesLen != matchIndices.length;
+  }
 
   int find(char[] text)
   {
@@ -410,7 +530,7 @@ class FuzzyQuery : Query
     foreach(word; words)
     {
       uint maxDistance = query.length > word.length ? query.length : word.length;
-      uint levDistance = levenshteinDistance(query, word);
+      uint levDistance = levenshteinDistance(query, tolower(word));
       if (levDistance == 0)
       {
         return 1; // Exact match
@@ -430,6 +550,14 @@ class RegExQuery : Query
   {
     super(query);
     rx = new RX.RegExp(query, flags);
+  }
+  int find(char[] text, ref int[2][] matchIndices)
+  {
+    foreach(m; rx.search(text))
+    {
+      matchIndices ~= [m.pmatch[0].rm_so, m.pmatch[0].rm_eo];
+    }
+    return rx.pmatch[0].rm_eo != 0;
   }
   int find(char[] text)
   {
@@ -511,7 +639,7 @@ char[][] splitUniAlpha(char[] text)
           end = j+k;
           break;
         }
-      result ~= tolower(text[i..end]);
+      result ~= text[i..end];
       i = end;
       j = end;
     }
