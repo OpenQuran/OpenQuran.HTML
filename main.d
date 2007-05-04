@@ -141,7 +141,7 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
 
     foreach (quran; qurans)
     {
-      writefln("[\33[32m%s\33[0m]", quran.getAuthor);
+      writefln("["~C("\33[32m")~"%s"~C("\33[0m")~"]", quran.getAuthor);
       int[][int] foundRefs;
       uint matches;
       foreach (aref; refs)
@@ -172,7 +172,7 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
 
     foreach (quran; qurans)
     {
-      writefln("[\33[32m%s\33[0m]", quran.getAuthor);
+      writefln("["~C("\33[32m")~"%s"~C("\33[0m")~"]", quran.getAuthor);
       uint matches;
       foreach (aref; refs)
       {
@@ -186,7 +186,7 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
             int[2][] matchIndices;
             if (predicate(queries, chapter[vidx], matchIndices))
             {
-              writefln("\33[34m%03d:%03d\33[0m: ", cidx+1, vidx+1,
+              writefln(C("\33[34m")~"%03d:%03d"~C("\33[0m")~": ", cidx+1, vidx+1,
                       highlightMatches(chapter[vidx], matchIndices)
               );
               ++matches;
@@ -240,13 +240,17 @@ char[] highlightMatches(char[] text, int[2][] matchIndices)
   }
   if (i != matchIndices.length)
     tmp ~= matchIndices[$-1];
-  // Iterate over the tuples and return a highlighted string with bash color codes.
+  // Iterate over the tuples and return a highlighted string
+  // with bash color codes or marking characters for Windows.
   int start;
   char[] hltext;
-  for (i=0; i < tmp.length; ++i)
+  foreach(offs; tmp)
   {
-    hltext ~= text[start..tmp[i][0]] ~ "\33[31m" ~ text[tmp[i][0]..tmp[i][1]] ~ "\33[0m";
-    start = tmp[i][1];
+    version(linux)
+      hltext ~= text[start..offs[0]] ~ "\33[31m" ~ text[offs[0]..offs[1]] ~ "\33[0m";
+    else
+      hltext ~= text[start..offs[0]] ~ "*" ~ text[offs[0]..offs[1]] ~ "*";
+    start = offs[1];
   }
   hltext ~= text[start..$];
   return hltext;
@@ -312,11 +316,11 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
       {
         foreach(vidx; aref.getVerseIndices(cidx))
         {
-          writefln("[\33[34m%03d:%03d\33[0m]", cidx+1, vidx+1);
+          writefln("["~C("\33[34m")~"%03d:%03d"~C("\33[0m")~"]", cidx+1, vidx+1);
           foreach(quran; qurans)
           {
             char[][] chapter = quran.chapter(cidx);
-            writefln("\33[32m%s\33[0m:\n", quran.getAuthor, chapter[vidx]);
+            writefln(C("\33[32m")~"%s"~C("\33[0m")~":\n", quran.getAuthor, chapter[vidx]);
           }
         }
       }
@@ -326,7 +330,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   { // Output verses of each author in sequential order.
     foreach(quran; qurans)
     {
-      writefln("[\33[32m%s\33[0m]", quran.getAuthor);
+      writefln("["~C("\33[32m")~"%s"~C("\33[0m")~"]", quran.getAuthor);
       foreach(aref; refs)
       {
         foreach(cidx; aref.getChapterIndices())
@@ -335,7 +339,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
 
           foreach(vidx; aref.getVerseIndices(cidx))
           {
-            writefln("\33[34m%03d:%03d\33[0m: ", cidx+1, vidx+1, chapter[vidx]);
+            writefln(C("\33[34m")~"%03d:%03d"~C("\33[0m")~": ", cidx+1, vidx+1, chapter[vidx]);
           }
         }
       }
@@ -343,7 +347,19 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-const char[] VERSION = "0.18";
+/++
+  Returns an empty string instead of the color code
+  when compiled for Windows.
++/
+char[] C(char[] code)
+{
+  version(Windows)
+    return "";
+  else
+    return code;
+}
+
+const char[] VERSION = "0.19";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
