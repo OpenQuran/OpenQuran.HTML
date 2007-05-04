@@ -226,12 +226,13 @@ char[] highlightMatches(char[] text, int[2][] matchIndices)
   // Merge overlapping slices.
   int[2][] tmp;
   int i;
+  int max(int a, int b){return a<b?b:a;}
   for (; i < (matchIndices.length -1); ++i)
   {
     alias matchIndices m;
     if ((m[i][1]) >= m[i+1][0])
     {
-      tmp ~= [m[i][0], m[i+1][1]];
+      tmp ~= [m[i][0], max(m[i][1], m[i+1][1])];
       ++i;
     }
     else
@@ -239,7 +240,7 @@ char[] highlightMatches(char[] text, int[2][] matchIndices)
   }
   if (i != matchIndices.length)
     tmp ~= matchIndices[$-1];
-  // Iterate over the tuples and output a formatted string
+  // Iterate over the tuples and return a highlighted string with bash color codes.
   int start;
   char[] hltext;
   for (i=0; i < tmp.length; ++i)
