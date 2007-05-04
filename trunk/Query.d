@@ -29,7 +29,11 @@ bool findAll(Query[] queries, char[] text)
 {
   bool found = queries.length ? true : false;
   foreach(query; queries)
-    found = found && query.find(text);
+  {
+    found &= query.find(text) != 0;
+    if (!found)
+      break;
+  }
   return found;
 }
 
@@ -37,7 +41,11 @@ bool findAll2(Query[] queries, char[] text, ref int[2][] matchIndices)
 {
   bool found = queries.length ? true : false;
   foreach(query; queries)
-    found = found && query.find(text, matchIndices);
+  {
+    found &= query.find(text, matchIndices) != 0;
+    if (!found)
+      break;
+  }
   return found;
 }
 
@@ -51,10 +59,10 @@ bool findAny(Query[] queries, char[] text)
 
 bool findAny2(Query[] queries, char[] text, ref int[2][] matchIndices)
 {
+  bool found;
   foreach(query; queries)
-    if (query.find(text, matchIndices))
-      return true;
-  return false;
+    found |= query.find(text, matchIndices) != 0;
+  return found;
 }
 
 class SimpleQuery : Query
