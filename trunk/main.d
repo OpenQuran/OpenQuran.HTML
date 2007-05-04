@@ -220,6 +220,7 @@ int[2][] quicksort(int[2][] list)
 
 char[] highlightMatches(char[] text, int[2][] matchIndices)
 {
+  assert(matchIndices.length != 0);
   // Sort the match tuples
   matchIndices = quicksort(matchIndices);
   // Merge overlapping slices.
@@ -347,8 +348,8 @@ const char[] helpMessage =
 Copyright (c) 2007 by Aziz Köksal
 
 Usage:
-  quran show [options] <references> <authors>
-  quran search [options] <query> <references> <authors>
+  quran show <references> <authors> [options]
+  quran search <query> <references> <authors> [options]
 
 Type 'quran help <sub-command>' for more help on a particular sub-command.
 `;
@@ -551,18 +552,26 @@ class RegExQuery : Query
     super(query);
     rx = new RX.RegExp(query, flags);
   }
+
   int find(char[] text, ref int[2][] matchIndices)
   {
-    foreach(m; rx.search(text))
-    {
-      matchIndices ~= [m.pmatch[0].rm_so, m.pmatch[0].rm_eo];
+    bool match;
+    if (rx.test(text)) {
+      match = true;
+      goto L;
+      while (rx.test())
+      L:
+        matchIndices ~= [rx.pmatch[0].rm_so, rx.pmatch[0].rm_eo];
     }
-    return rx.pmatch[0].rm_eo != 0;
+
+    return match;
   }
+
   int find(char[] text)
   {
     return rx.test(text);
   }
+
   RX.RegExp rx;
 }
 
