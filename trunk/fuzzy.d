@@ -16,27 +16,27 @@ int min(int a, int b, int c)
   return m;
 }
 
-size_t utf8len(char[] s)
-{
-  size_t res;
-  while (s.length)
-  {
-    s = s[stride(s, 0)..$];
-    ++res;
-  }
-  return res;
-}
+static int[64] row1;
+static int[64] row2;
 
-int levenshteinDistance(char[] str1, char[] str2)
+int levenshtein_distance(char[] str1, char[] str2)
 {
   int d[2][];
   int i, j, cost;
 
-  // Only two rows are needed
-  d[0] = new int[utf8len(str2) + 1];
-  d[1] = d[0].dup;
+  // Use static buffers if str2 fits in.
+  if (str2.length < 64)
+  {
+    d[0] = row1;
+    d[1] = row2;
+  }
+  else
+  {
+    d[0] = new int[str2.length + 1];
+    d[1] = d[0].dup;
+  }
 
-//   d[0][0] = 0;
+  d[0][0] = 0;
   foreach (dchar dc; str2)
   {
     ++j;

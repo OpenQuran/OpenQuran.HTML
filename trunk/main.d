@@ -303,7 +303,7 @@ char[] C(char[] code)
     return code;
 }
 
-const char[] VERSION = "0.19";
+const char[] VERSION = "0.20";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
