@@ -95,21 +95,17 @@ class FuzzyQuery : Query
 
   int find(char[] text, ref int[2][] matchIndices)
   {
-    char[][] words = splitUniAlpha(text);
     int matchIndicesLen = matchIndices.length;
-    int start;
-    foreach(word; words)
+    SplitUniAlpha towords;
+    towords.text = text;
+    foreach(index, word; towords)
     {
       uint maxDistance = query.length > word.length ? query.length : word.length;
-      uint levDistance = levenshteinDistance(query, tolower(word));
+      uint levDistance = levenshtein_distance(query, tolower(word));
       if (levDistance == 0 ||
           (cast(float)levDistance / maxDistance) <= 0.3)
       {
-        // TODO: ifind() is unnecessary.
-        // splitUniAlpha should return indices as well.
-        start = start + ifind(text[start..$], word);
-        matchIndices ~= [start, start + word.length];
-        start += word.length;
+        matchIndices ~= [index, index + word.length];
       }
     }
     return matchIndicesLen != matchIndices.length;
@@ -117,11 +113,12 @@ class FuzzyQuery : Query
 
   int find(char[] text)
   {
-    char[][] words = splitUniAlpha(text);
-    foreach(word; words)
+    SplitUniAlpha towords;
+    towords.text = text;
+    foreach(index, word; towords)
     {
       uint maxDistance = query.length > word.length ? query.length : word.length;
-      uint levDistance = levenshteinDistance(query, tolower(word));
+      uint levDistance = levenshtein_distance(query, tolower(word));
       if (levDistance == 0)
       {
         return 1; // Exact match
@@ -220,6 +217,41 @@ Query[] parseQuery(char[] query)
   }
 
   return queries;
+}
+
+struct SplitUniAlpha
+{
+  char[] text;
+
+  int opApply(int delegate(ref int index, ref char[] word) foreachbody)
+  {
+    int result;
+    uint i, j;
+    dchar c = decode(text, j);
+    for(; i < text.length; (c = decode(text, j)))
+    {
+      if (isUniAlpha(c))
+      {
+        uint end = text.length;
+        foreach (k, dchar d; text[j..$])
+          if (!isUniAlpha(d))
+          {
+            end = j+k;
+            break;
+          }
+        int index = i;
+        char[] word = text[i..end];
+        result = foreachbody(index, word);
+        if (result)
+          break;
+        i = end;
+        j = end;
+      }
+      else i = j;
+    }
+    return result;
+  }
+
 }
 
 char[][] splitUniAlpha(char[] text)

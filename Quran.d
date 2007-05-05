@@ -112,6 +112,8 @@ class Quran
 
   public char[] getAuthor()
   { return author; }
+  public char[][] getVerses()
+  { return verses; }
 
   private char[] author;
   private char[] language;
