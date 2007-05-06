@@ -10,6 +10,7 @@ import std.random;
 import Quran;
 import ReferenceParser;
 import Query;
+import Strings;
 
 /++
   Transform a list of integers into a list of ranges.
@@ -289,45 +290,6 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-/// Indicates whether to use bash color codes in output format strings.
-bool useColor;
-/++
-  Returns an empty string instead of the color code
-  when compiled for Windows.
-+/
-char[] ColorCode(char[] code)
-{
-  version(Windows)
-    return "";
-  else
-    return useColor ? code : "";
-}
-
-/++
-  A collection of format strings.
-+/
-struct Strings
-{
-  static:
-  char[] Author;
-  char[] AuthorVerse;
-  char[] ChapterNrVerseNr;
-  char[] ChapterNrVerseNrVerse;
-
-  /++
-    Initialize strings without color codes on Windows.
-    On Linux it can be turned on and off with the useColor variable.
-  +/
-  void init()
-  {
-    alias ColorCode C;
-    Author = "["~C("\33[32m")~"%s"~C("\33[0m")~"]";
-    AuthorVerse = C("\33[32m")~"%s"~C("\33[0m")~":\n";
-    ChapterNrVerseNr = "["~C("\33[34m")~"%03d:%03d"~C("\33[0m")~"]";
-    ChapterNrVerseNrVerse = C("\33[34m")~"%03d:%03d"~C("\33[0m")~": ";
-  }
-}
-
 const char[] VERSION = "0.21";
 const char[] helpMessage =
 `openquran v`~VERSION~`
@@ -415,7 +377,7 @@ version(linux)
   }
 
   /++
-    Return true if this is a terminal.
+    Return true if fd is a terminal.
   +/
   bool isatty(int fd)
   {
@@ -435,7 +397,7 @@ void main(char[][] args)
 
   version(linux)
     // Use color codes if stdout is a terminal.
-    useColor = isatty(fileno(stdout));
+    Strings.useColor = isatty(fileno(stdout));
   Strings.init();
 
   switch (args[1])

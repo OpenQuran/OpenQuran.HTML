@@ -35,7 +35,7 @@ const int[NR_OF_CHAPTERS] verses_table = [
    6,   3,   5,   4,   5,   6
 ];
 
-/+
+/++
   A table of offset values to the start of a chapter
   in an array of all verses in the Qur'an.
 +/
@@ -61,6 +61,9 @@ const int[NR_OF_CHAPTERS] chapter_offset_table = [
  6207, 6213, 6216, 6221, 6225, 6230
 ];
 
+/++
+  Represents a Qur'an file on the disk.
++/
 class Quran
 {
   this(char[] fileName)
@@ -102,6 +105,9 @@ class Quran
       throw new Exception("Error: the header of the file \""~fileName~"\" is corrupt.");
   }
 
+  /++
+    Returns the verses of the chapter chapterIndex.
+  +/
   public char[][] chapter(int chapterIndex)
   in { assert( 0 <= chapterIndex && chapterIndex < 114 ); }
   body
@@ -115,8 +121,8 @@ class Quran
   public char[][] getVerses()
   { return verses; }
 
-  private char[] author;
-  private char[] language;
-  private char[] fileName;
-  private char[][] verses;
+  private char[] author;   /// The author name of the Qur'an file.
+  private char[] language; /// A two or three letter language code.
+  private char[] fileName; /// Path to the file.
+  private char[][] verses; /// An array of all 6236 verses.
 }
