@@ -142,7 +142,7 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
 
     foreach (quran; qurans)
     {
-      writefln("["~C("\33[32m")~"%s"~C("\33[0m")~"]", quran.getAuthor);
+      writefln(Strings.Author, quran.getAuthor);
       int[][int] foundRefs;
       uint matches;
       foreach (aref; refs)
@@ -153,7 +153,6 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
 
           foreach (vidx; aref.getVerseIndices(cidx))
           {
-//             if (ifind(chapter[vidx], query) != -1)
             if (predicate(queries, chapter[vidx]))
             {
               foundRefs[cidx+1] ~= vidx+1;
@@ -173,7 +172,7 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
 
     foreach (quran; qurans)
     {
-      writefln("["~C("\33[32m")~"%s"~C("\33[0m")~"]", quran.getAuthor);
+      writefln(Strings.Author, quran.getAuthor);
       uint matches;
       foreach (aref; refs)
       {
@@ -183,11 +182,10 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
 
           foreach (vidx; aref.getVerseIndices(cidx))
           {
-//             if (predicate(queries, chapter[vidx]))
             int[2][] matchIndices;
             if (predicate(queries, chapter[vidx], matchIndices))
             {
-              writefln(C("\33[34m")~"%03d:%03d"~C("\33[0m")~": ", cidx+1, vidx+1,
+              writefln(Strings.ChapterNrVerseNrVerse, cidx+1, vidx+1,
                       highlightMatches(chapter[vidx], matchIndices)
               );
               ++matches;
@@ -260,11 +258,11 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
       {
         foreach(vidx; aref.getVerseIndices(cidx))
         {
-          writefln("["~C("\33[34m")~"%03d:%03d"~C("\33[0m")~"]", cidx+1, vidx+1);
+          writefln(Strings.ChapterNrVerseNr, cidx+1, vidx+1);
           foreach(quran; qurans)
           {
             char[][] chapter = quran.chapter(cidx);
-            writefln(C("\33[32m")~"%s"~C("\33[0m")~":\n", quran.getAuthor, chapter[vidx]);
+            writefln(Strings.AuthorVerse, quran.getAuthor, chapter[vidx]);
           }
         }
       }
@@ -274,7 +272,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   { // Output verses of each author in sequential order.
     foreach(quran; qurans)
     {
-      writefln("["~C("\33[32m")~"%s"~C("\33[0m")~"]", quran.getAuthor);
+      writefln(Strings.Author, quran.getAuthor);
       foreach(aref; refs)
       {
         foreach(cidx; aref.getChapterIndices())
@@ -283,7 +281,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
 
           foreach(vidx; aref.getVerseIndices(cidx))
           {
-            writefln(C("\33[34m")~"%03d:%03d"~C("\33[0m")~": ", cidx+1, vidx+1, chapter[vidx]);
+            writefln(Strings.ChapterNrVerseNrVerse, cidx+1, vidx+1, chapter[vidx]);
           }
         }
       }
@@ -291,19 +289,39 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
+/// Indicates whether to use bash color codes in output format strings.
+bool useColor;
 /++
   Returns an empty string instead of the color code
   when compiled for Windows.
 +/
-char[] C(char[] code)
+char[] ColorCode(char[] code)
 {
   version(Windows)
     return "";
   else
-    return code;
+    return useColor ? code : "";
 }
 
-const char[] VERSION = "0.20";
+struct Strings
+{
+  static:
+  char[] Author;
+  char[] AuthorVerse;
+  char[] ChapterNrVerseNr;
+  char[] ChapterNrVerseNrVerse;
+
+  void init()
+  {
+    alias ColorCode C;
+    Author = "["~C("\33[32m")~"%s"~C("\33[0m")~"]";
+    AuthorVerse = C("\33[32m")~"%s"~C("\33[0m")~":\n";
+    ChapterNrVerseNr = "["~C("\33[34m")~"%03d:%03d"~C("\33[0m")~"]";
+    ChapterNrVerseNrVerse = C("\33[34m")~"%03d:%03d"~C("\33[0m")~": ";
+  }
+}
+
+const char[] VERSION = "0.21";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
@@ -351,8 +369,8 @@ Usage:
   quran search <query> [references] <authors> [options]
 
 Options:
-  -p            : print numerical references instead of text.
-  -any          : do an OR-search instead of the default AND-search.
+  -p           : print numerical references instead of text.
+  -any         : do an OR-search instead of the default AND-search.
 
 Query:
   A usual query consists of one or many words. There is support for
@@ -381,10 +399,37 @@ void printHelp(char[] about)
     writefln(helpMessage);
 }
 
+version(linux)
+{
+  const int TCGETS = 0x5401;
+  extern(C) {
+    int errno;
+    int ioctl(int fd, uint request, ...);
+  }
+
+  /++
+    Return true if this is a terminal.
+  +/
+  bool isatty(int fd)
+  {
+    ubyte[29] _struct;
+    int result;
+    int olderrno = errno;
+    result = ioctl(fd, TCGETS, _struct.ptr);
+    errno = olderrno;
+    return result == 0;
+  }
+}
+
 void main(char[][] args)
 {
   if (args.length <= 1)
     return printHelp("");
+
+  version(linux)
+    // Use color codes if stdout is a terminal.
+    useColor = isatty(fileno(stdout));
+  Strings.init();
 
   switch (args[1])
   {
