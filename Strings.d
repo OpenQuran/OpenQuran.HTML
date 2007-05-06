@@ -36,6 +36,6 @@ void init()
   AuthorVerse = C("\33[32m")~"%s"~C("\33[0m")~":\n";
   ChapterNrVerseNr = "["~C("\33[34m")~"%03d:%03d"~C("\33[0m")~"]";
   ChapterNrVerseNrVerse = C("\33[34m")~"%03d:%03d"~C("\33[0m")~": ";
-  HighlightL = "\33[31m";
-  HighlightR = "\33[0m";
+  HighlightL = C("\33[31m");
+  HighlightR = C("\33[0m");
 }
