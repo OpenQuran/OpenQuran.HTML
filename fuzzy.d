@@ -19,6 +19,10 @@ int min(int a, int b, int c)
 static int[64] row1;
 static int[64] row2;
 
+/++
+  Calculate the number of edit operations - delete, insert, substitute -
+  to transform str1 into str2.
++/
 int levenshtein_distance(char[] str1, char[] str2)
 {
   int d[2][];

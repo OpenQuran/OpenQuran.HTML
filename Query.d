@@ -8,6 +8,9 @@ import fuzzy;
 static import std.regexp;
 alias std.regexp RX;
 
+/++
+  Base class for queries.
++/
 abstract class Query
 {
   this(char[] query)
@@ -65,6 +68,9 @@ bool findAny2(Query[] queries, char[] text, ref int[2][] matchIndices)
   return found;
 }
 
+/++
+  A simple query looks for one word in a text using ifind().
++/
 class SimpleQuery : Query
 {
   this(char[] query)
@@ -88,6 +94,10 @@ class SimpleQuery : Query
   }
 }
 
+/++
+  A fuzzy query uses the Levenshtein algorithm to find
+  exact matches or similar words in a text.
++/
 class FuzzyQuery : Query
 {
   this(char[] query)
@@ -132,6 +142,10 @@ class FuzzyQuery : Query
   }
 }
 
+/++
+  A regular expression query uses the regexp library of Phobos
+  to find a match in a text.
++/
 class RegExpQuery : Query
 {
   this(char[] query, char[] flags)
@@ -159,10 +173,14 @@ class RegExpQuery : Query
     return rx.test(text);
   }
 
-  RX.RegExp rx;
+  RX.RegExp rx; /// Regular expression object from Phobos.
 }
 
 import std.uni, std.utf;
+/++
+  Parses a query string into an array of Query objects.
+  Unrecognized characters are ignored.
++/
 Query[] parseQuery(char[] query)
 {
   dchar[] q = toUTF32(query);
@@ -219,6 +237,11 @@ Query[] parseQuery(char[] query)
   return queries;
 }
 
+/++
+  Split a text into words. The advantage of using opApply over
+  a free function is that it can be cancelled prematurely
+  in order to save CPU time.
++/
 struct SplitUniAlpha
 {
   char[] text;
@@ -254,6 +277,9 @@ struct SplitUniAlpha
 
 }
 
+/++
+  Split a text into words.
++/
 char[][] splitUniAlpha(char[] text)
 {
   char[][] result;
@@ -298,6 +324,12 @@ int[2][] quicksort(int[2][] list)
   return quicksort(less) ~ pivotList ~ quicksort(greater);
 }
 
+import Strings;
+/++
+  Takes a list of two-pair index values, slices the text and inserts
+  color codes at those positions - on Linux.
+  On Windows '*' is inserted instead.
++/
 char[] highlightMatches(char[] text, int[2][] matchIndices)
 {
   assert(matchIndices.length != 0);
@@ -327,7 +359,7 @@ char[] highlightMatches(char[] text, int[2][] matchIndices)
   foreach(offs; tmp)
   {
     version(linux)
-      hltext ~= text[start..offs[0]] ~ "\33[31m" ~ text[offs[0]..offs[1]] ~ "\33[0m";
+      hltext ~= text[start..offs[0]] ~ Strings.HighlightL ~ text[offs[0]..offs[1]] ~ Strings.HighlightR;
     else
       hltext ~= text[start..offs[0]] ~ "*" ~ text[offs[0]..offs[1]] ~ "*";
     start = offs[1];
