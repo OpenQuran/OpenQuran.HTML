@@ -303,6 +303,9 @@ char[] ColorCode(char[] code)
     return useColor ? code : "";
 }
 
+/++
+  A collection of format strings.
++/
 struct Strings
 {
   static:
@@ -311,6 +314,10 @@ struct Strings
   char[] ChapterNrVerseNr;
   char[] ChapterNrVerseNrVerse;
 
+  /++
+    Initialize strings without color codes on Windows.
+    On Linux it can be turned on and off with the useColor variable.
+  +/
   void init()
   {
     alias ColorCode C;
