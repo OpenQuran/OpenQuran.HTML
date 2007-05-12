@@ -3,7 +3,6 @@
   License: GPL2
 */
 module openquran;
-import std.stdio;
 import std.file;
 import std.string;
 import std.random;
@@ -11,6 +10,58 @@ import Quran;
 import ReferenceParser;
 import Query;
 import Strings;
+
+version(Windows)
+{
+  import std.format;
+  import std.utf : encode;
+
+  const uint STD_OUTPUT_HANDLE = cast(uint)-11;
+  extern(Windows) void* GetStdHandle(uint);
+  extern(Windows) int WriteConsoleW(
+    void* hConsoleOutput,
+    void* lpBuffer,
+    uint  nNumberOfCharsToWrite,
+    uint* lpNumberOfCharsWritten,
+    void* lpReserved
+  );
+
+  void* consoleHandle;
+
+  alias file_outfln writefln;
+  alias file_outf writef;
+
+  void writefx(TypeInfo[] arguments, void* argptr, int newline = false)
+  {
+    wchar[] data;
+    void putc(dchar c)
+    {
+      encode(data, c);
+    }
+    doFormat(&putc, arguments, argptr);
+    if (newline)
+      data ~= '\n';
+    uint written;
+    // Todo: WriteConsoleW can maximally output 64k.
+    // Though it's unusual that a line will be that long,
+    // maybe that case should be handled and the string split into 64k chunks.
+    WriteConsoleW(consoleHandle, cast(void*)data.ptr, data.length, &written, null);
+    debug assert(written == data.length);
+
+  }
+  void file_outfln(...)
+  {
+    writefx(_arguments, _argptr, 1);
+  }
+  void file_outf(...)
+  {
+    writefx(_arguments, _argptr, 0);
+  }
+}
+else
+{
+  import std.stdio;
+}
 
 /++
   Transform a list of integers into a list of ranges.
@@ -41,28 +92,6 @@ int[2][] transformToRanges(int[] list)
     }
   }
   result ~= [l,r];
-  return result;
-}
-
-/++
-  Replace occurences of from with to in source.
-  In order to preserve the casing of the matched string
-  you can provide a format string "%s" in "to" which will
-  be replaced with the found string.
-  NB.: This could be generalized with a callback delegate function.
-+/
-char[] ireplace(char[] source, char[] from, char[] to)
-{
-  alias source s;
-  char[] result;
-  int i;
-
-  while( (i = ifind(s, from)) != -1 )
-  {
-    result ~= s[0 .. i] ~ replace(to, "%s", s[i .. i + from.length]);
-    s = s[i + from.length .. $];
-  }
-  result ~= s;
   return result;
 }
 
@@ -392,6 +421,9 @@ version(linux)
 
 void main(char[][] args)
 {
+  version(Windows)
+    consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
   if (args.length <= 1)
     return printHelp("");
 
