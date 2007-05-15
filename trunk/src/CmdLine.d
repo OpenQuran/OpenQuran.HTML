@@ -67,7 +67,7 @@ Lerr:
   wchar[][] argv = ParseCommandLineArgs(GetCommandLineW());
   // ...
   free(argv[0].ptr); // free the parsed cmd-line first
-  free(&argv); // then the array itself
+  free(argv.ptr); // then the array itself
   ---
   See also: Parsing C Command-Line Arguments: http://msdn2.microsoft.com/en-us/library/ms880421.aspx
   TODO: argv[0] should always contain the full path to the executable.
