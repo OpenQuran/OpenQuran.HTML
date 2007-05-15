@@ -18,15 +18,14 @@ version(Windows)
 
   const uint STD_OUTPUT_HANDLE = cast(uint)-11;
   extern(Windows) void* GetStdHandle(uint);
-  extern(Windows) int WriteConsoleW(
-    void* hConsoleOutput,
-    void* lpBuffer,
-    uint  nNumberOfCharsToWrite,
-    uint* lpNumberOfCharsWritten,
-    void* lpReserved
-  );
+  extern(Windows) int WriteConsoleW(void*,void*,uint,uint*,void*);
 
   void* consoleHandle;
+
+  static this()
+  {
+    consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+  }
 
   alias file_outfln writefln;
   alias file_outf writef;
@@ -421,9 +420,6 @@ version(linux)
 
 void main(char[][] args)
 {
-  version(Windows)
-    consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-
   if (args.length <= 1)
     return printHelp("");
 
