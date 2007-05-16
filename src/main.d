@@ -56,6 +56,8 @@ version(Windows)
   {
     writefx(_arguments, _argptr, 0);
   }
+  // Support for Unicode command-line arguments
+  import CmdLine;
 }
 else
 {
@@ -422,6 +424,9 @@ void main(char[][] args)
 {
   if (args.length <= 1)
     return printHelp("");
+
+  version(Windows)
+    args = GetUnicodeArgv();
 
   version(linux)
     // Use color codes if stdout is a terminal.
