@@ -138,9 +138,8 @@ wchar[][] ParseCommandLineArgs(wchar* cmdLine)
     {
       dest -= bsCount / 2;
       if (bsCount & 1)
-      { // Add literal '"' if odd number of back slashes.
-        dest -= 1;
-        *dest = '"';
+      { // Replace previous backslash with literal '"'.
+        *(dest-1) = '"';
         ++p;
       }
     }
