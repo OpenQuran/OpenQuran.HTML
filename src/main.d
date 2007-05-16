@@ -426,7 +426,11 @@ void main(char[][] args)
     return printHelp("");
 
   version(Windows)
+  {
+    int argc = args.length;
     args = GetUnicodeArgv();
+    assert(args.length == argc);
+  }
 
   version(linux)
     // Use color codes if stdout is a terminal.
