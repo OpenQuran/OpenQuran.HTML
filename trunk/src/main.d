@@ -20,16 +20,31 @@ version(Windows)
   const uint STD_OUTPUT_HANDLE = cast(uint)-11;
   extern(Windows) void* GetStdHandle(uint);
   extern(Windows) int WriteConsoleW(void*,void*,uint,uint*,void*);
-
+  extern(Windows) uint GetFileType(void*);
+  extern(Windows) int GetConsoleMode(void*,uint*);
+  const uint FILE_TYPE_CHAR = 2;
   void* consoleHandle;
+
+  static import std.stdio;
 
   static this()
   {
     consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    // If this is a console use WriteConsoleW() to output text.
+    uint unused;
+    if (GetFileType(consoleHandle) == FILE_TYPE_CHAR &&
+        GetConsoleMode(consoleHandle, &unused) // Additional check
+       )
+    {
+      outfln = &WCW_outfln;
+      outfln = &WCW_outfln;
+    }
   }
 
-  alias file_outfln writefln;
-  alias file_outf writef;
+  void function(...) outfln = &std.stdio.writefln;
+  void function(...) outf = &std.stdio.writef;
+  alias outfln writefln;
+  alias outf writef;
 
   void writefx(TypeInfo[] arguments, void* argptr, int newline = false)
   {
@@ -49,11 +64,11 @@ version(Windows)
     debug assert(written == data.length);
 
   }
-  void file_outfln(...)
+  void WCW_outfln(...)
   {
     writefx(_arguments, _argptr, 1);
   }
-  void file_outf(...)
+  void WCW_outf(...)
   {
     writefx(_arguments, _argptr, 0);
   }
