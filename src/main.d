@@ -10,6 +10,7 @@ import Quran;
 import ReferenceParser;
 import Query;
 import Strings;
+import CmdLine;
 
 version(Windows)
 {
@@ -56,8 +57,6 @@ version(Windows)
   {
     writefx(_arguments, _argptr, 0);
   }
-  // Support for Unicode command-line arguments
-  import CmdLine;
 }
 else
 {
