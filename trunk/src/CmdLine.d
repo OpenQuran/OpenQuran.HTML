@@ -9,19 +9,29 @@ import std.c.string : memcpy;
 
 version(Windows)
 {
-extern(Windows) uint GetModuleFileNameW(void*, wchar*, uint);
-extern(Windows) wchar* GetCommandLineW();
+  extern(Windows) uint GetModuleFileNameW(void*, wchar*, uint);
+  extern(Windows) wchar* GetCommandLineW();
+}
+else
+{
+  // Defining stubs so that documentation
+  // can be generated for this file on Linux
+  uint GetModuleFileNameW(void* a, wchar* b, uint c)
+  { return 0; }
+  wchar* GetCommandLineW()
+  { return null; }
+}
 
 /++
   Get the fully qualified path of this executable.
   Returns:
-  Wide string allocated with calloc(). Release with free().
+    Wide string allocated with malloc(). Release with free().
 +/
 wchar[] GetExecutableFileName()
 {
   uint destsize = 256;
   uint strlen;
-  wchar* dest = cast(wchar*) calloc(wchar.sizeof, destsize * wchar.sizeof);
+  wchar* dest = cast(wchar*) malloc(destsize * wchar.sizeof);
   if (!dest)
     goto Lerr;
 
@@ -81,7 +91,6 @@ char[][] GetUnicodeArgv()
   return result;
 }
 
-} //version(Windows)
 
 int countArguments(wchar* cmdLine)
 {
@@ -124,17 +133,18 @@ int countArguments(wchar* cmdLine)
 }
 
 /++
-  Parses the command line string returned by GetCommandLineW().
-  Escape rules:
+  Parses a command-line string using the following escaping rules:
   <ol>
   <li>'"' [^"]* '"'   -> [^"]* contents of the quote</li>
   <li>'\'{2N} + '"'   -> '\'{N} half the number of bs + argument delimiting '"'</li>
   <li>'\'{2N-1} + '"' -> '\'{N} + '"' half the number of bs + literal '"'</li>
   <li>'\'{N} + [^"]   -> '\'{N} add N literal '\'</li>
   </ol>
+  Params:
+    cmdLine = the command-line string.
+    argc    = receives the number of arguments found in cmdLine.
   Returns:
     A string - allocated with malloc() - containing the zero-terminated arguments.
-    The parameter argc is set to the number of arguments found in cmdLine.<br>
   See_Also: Parsing C Command-Line Arguments: http://msdn2.microsoft.com/en-us/library/ms880421.aspx
 +/
 wchar[] GetParsedCmdLine(wchar* cmdLine, out int argc)
@@ -245,25 +255,28 @@ wchar[][] GetArgvW(wchar* cmdLine)
   if (!execName)
     goto Lerr_mem_free1;
 
+  size_t argvSize = argc * (wchar[]).sizeof;
+  size_t parsSize = parsedLine.length * wchar.sizeof;
+  size_t execSize = execName.length * wchar.sizeof;
   // Allocate a single block of memory for all 3 parts.
   wchar[][] argv = (cast(wchar[]*) malloc(
-    argc * (wchar[]).sizeof) + // for argv
-    parsedLine.length * wchar.sizeof + // arguments
-    execName.length * wchar.sizeof // executable name
-  )[0..argc];
+    argvSize + // for argv
+    parsSize + // arguments
+    execSize   // executable name
+  ))[0..argc]; // slice out chunk for argv
 
   if (!argv.ptr)
     goto Lerr_mem_free2;
 
   // Copy parsed cmd-line.
-  wchar* p = cast(wchar*) memcpy(argv.ptr + argv.length * (wchar[]).sizeof,
+  wchar* p = cast(wchar*) memcpy(cast(void*)argv.ptr + argvSize,
     parsedLine.ptr,
-    parsedLine.length * wchar.sizeof
+    parsSize
   );
   // Copy executable name.
-  wchar[] eName = (cast(wchar*) memcpy(p + parsedLine.length * wchar.sizeof,
+  wchar[] eName = (cast(wchar*) memcpy(cast(void*)p + parsSize,
     execName.ptr,
-    execName.length * wchar.sizeof
+    execSize
   ))[0..execName.length];
   // Free parsed cmd-line and executable name.
   free(parsedLine.ptr);
@@ -279,8 +292,6 @@ wchar[][] GetArgvW(wchar* cmdLine)
 
   // Replace first argument with the fully qualified path to the executable.
   argv[0] = eName;
-
-  free(execName.ptr);
 
   return argv;
 Lerr_mem_free2:
