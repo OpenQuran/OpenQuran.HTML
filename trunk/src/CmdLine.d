@@ -144,7 +144,8 @@ int countArguments(wchar* cmdLine)
     cmdLine = the command-line string.
     argc    = receives the number of arguments found in cmdLine.
   Returns:
-    A string - allocated with malloc() - containing the zero-terminated arguments.
+    A string - allocated with malloc() - containing the zero-terminated arguments.<br>
+    E.g. "main.exe arg1 arg2" is parsed to "main.exe\0arg1\0arg2\0"
   See_Also: Parsing C Command-Line Arguments: http://msdn2.microsoft.com/en-us/library/ms880421.aspx
 +/
 wchar[] GetParsedCmdLine(wchar* cmdLine, out int argc)
@@ -171,7 +172,7 @@ body
     goto Lerr;
 
   // Allocate memory for the parsed cmd line.
-  wchar* line = cast(wchar*) malloc((cmdLineLength + 1) * wchar.sizeof);
+  wchar* line = cast(wchar*) malloc((cmdLineLength + 1) * wchar.sizeof); // +1 for '\0'
   if (!line)
     goto Lerr;
 
