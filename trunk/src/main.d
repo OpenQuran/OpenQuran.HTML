@@ -16,24 +16,25 @@ version(Windows)
 {
   import std.format;
   import std.utf : encode;
+  static import std.stdio;
 
-  const uint STD_OUTPUT_HANDLE = cast(uint)-11;
   extern(Windows) void* GetStdHandle(uint);
   extern(Windows) int WriteConsoleW(void*,void*,uint,uint*,void*);
   extern(Windows) uint GetFileType(void*);
   extern(Windows) int GetConsoleMode(void*,uint*);
-  const uint FILE_TYPE_CHAR = 2;
-  void* consoleHandle;
 
-  static import std.stdio;
+  const uint STD_OUTPUT_HANDLE = cast(uint)-11;
+  const uint FILE_TYPE_CHAR = 2;
+
+  void* stdoutHandle;
 
   static this()
   {
-    consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     // If this is a console use WriteConsoleW() to output text.
     uint unused;
-    if (GetFileType(consoleHandle) == FILE_TYPE_CHAR &&
-        GetConsoleMode(consoleHandle, &unused) // Additional check
+    if (GetFileType(stdoutHandle) == FILE_TYPE_CHAR &&
+        GetConsoleMode(stdoutHandle, &unused) // Additional check
        )
     {
       outfln = &WCW_outfln;
@@ -60,7 +61,7 @@ version(Windows)
     // Todo: WriteConsoleW can maximally output 64k.
     // Though it's unusual that a line will be that long,
     // maybe that case should be handled and the string split into 64k chunks.
-    WriteConsoleW(consoleHandle, cast(void*)data.ptr, data.length, &written, null);
+    WriteConsoleW(stdoutHandle, cast(void*)data.ptr, data.length, &written, null);
     debug assert(written == data.length);
 
   }
