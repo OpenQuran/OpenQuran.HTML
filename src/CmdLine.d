@@ -326,7 +326,7 @@ unittest
     `C:\dmd"\bin"""\\"dmd.exe" a\"rg1 arg2\"\\ \"ar\\\"\g3\"`
   ];
   // Array of argument vectors.
-  wchar[][][] cmdArgvs= [
+  wchar[][][] expectedArgvs= [
     cast(wchar[][])[],
     [],
     ["main.exe"w],
@@ -343,28 +343,35 @@ unittest
     [`C:\bla.exe`w, `arg\1`, `arg\\2`],
     [`C:\dmd\bin\dmd.exe`w, "a\"rg1", `arg2"\\`, `"ar\"\g3"`]
   ];
-  assert(cmdLines.length == cmdArgvs.length);
+  assert(cmdLines.length == expectedArgvs.length);
 
   foreach(i, cmdLine; cmdLines)
   {
-    wchar[][] cmpArgv = cmdArgvs[i];
+    wchar[][] expectedArgv = expectedArgvs[i];
     int argc;
     wchar[] parsedLine = GetParsedCmdLine(cmdLine.ptr, argc);
     scope(exit) free(parsedLine.ptr);
 
-    if (cmpArgv.length != argc)
-      throw new Exception("Number of arguments do not match!");
+    if (expectedArgv.length != argc)
+    {
+      char[] error = std.string.format(
+        "Cmd-line:`%s`\n", cmdLine,
+        "Expected Nr.:%d Parsed Nr.:%d\n", expectedArgv.length, argc
+      );
+      throw new Exception("Number of arguments do not match!\n" ~ error);
+    }
+
     wchar* p = parsedLine.ptr;
     if (p)
       for(int j; j < argc; ++j)
       {
         wchar* arg = p;
         while(*p++) {} // Move to the end of the argument
-        if (cmpArgv[j] != arg[0..p - arg -1])
+        if (expectedArgv[j] != arg[0..p - arg -1])
         {
           char[] err = std.string.format(
-            "Cmd-line:>%s<\n", cmdLine,
-            "Parsed:>%s< != Expected:>%s<\n", arg[0..p - arg -1], cmpArgv[j]
+            "Cmd-line:`%s`\n", cmdLine,
+            "Expected:`%s` Parsed:`%s`\n", expectedArgv[j], arg[0..p - arg -1]
           );
           throw new Exception("Mismatch between parsed argument and expected argument:\n" ~ err);
         }
