@@ -63,4 +63,11 @@ cp AUTHORS COPYING CHANGELOG dsss.conf release.sh $SRCDEST
 # Build archives
 cd $BUILD
 tar --owner root --group root -czf $LINDIR.tar.gz $LINDIR
+#tar --owner root --group root -czf $SRCDIR.tar.gz $SRCDIR
+#tar --owner root --group root --bzip2 -cf $SRCDIR.tar.bz2 $SRCDIR
 zip -q -9 -r $SRCDIR.zip $SRCDIR
+
+# Code for zipping every file in the current directory.
+#for qfile in $(ls); do
+#  zip -q -9 -r ${qfile}_1.0.zip $qfile
+#done
