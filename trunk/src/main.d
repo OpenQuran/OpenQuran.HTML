@@ -3,7 +3,6 @@
   License: GPL2
 */
 module openquran;
-import std.file;
 import std.string;
 import std.random;
 import Quran;
@@ -335,7 +334,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-const char[] VERSION = "0.23";
+const char[] VERSION = "0.22";
 const char[] helpMessage =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
