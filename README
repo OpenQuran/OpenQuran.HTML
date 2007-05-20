@@ -1,0 +1,28 @@
+openquran 0.22
+--------------
+Copyright (c) by Aziz Köksal <aziz.kerim@gmail.com>
+This program is free software, licensed under the GPL2.
+Please, read the accompanying License text-file for further information.
+
+Description
+-----------
+openquran is a command-line utility, which enables you to list verses from
+the Qur'an by specifying reference lists (e.g. 3:4-59; 33:12) and it allows you
+to search various translations with normal, regular expression and fuzzy
+queries.
+
+Requirements
+------------
+Any hardware configuration should be able to run this program.
+There are binaries for Windows and Linux systems.
+Tested on Windows XP and (Ubuntu) Linux.
+
+Installation
+------------
+There is no setup required. Open a console, change to the directory where you
+extracted the program and type "quran". You will see the main help message.
+
+Translations
+------------
+Download translations from: http://code.google.com/p/openquran/downloads/list
+Extract the archive(s) to the same folder where the executable resides.
