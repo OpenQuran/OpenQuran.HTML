@@ -1,2 +1,11 @@
-openquran 0.21 (7 May 2007):
+Version 0.22 (20 May 2007):
+  * Translations can be downloaded separately.
+  * Added German translation by Ahmadeyya.
+  * Added Turkish translations by Edip Yüksel and Yaşar Nuri Öztürk.
+  * Added a static HTML-file with translations by Y. Ali, Shakir and Pickthall.
+  Windows specific:
+  * Support for printing Unicode characters in the console
+    (regardless of active codepage.)
+  * Support for Unicode command-line parameters.
+Version 0.21 (7 May 2007):
   * First release of openquran.
