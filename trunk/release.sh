@@ -9,8 +9,10 @@ fi
 # NB: streaming to a temp file. The "-i" option in sed doesn't seem to work.
 sed {s/version\ =\ [0-9]\.[0-9][0-9]/version\ =\ $1/} dsss.conf > dsss.conf.tmp
 sed {s/VERSION\ =\ \"[0-9]\.[0-9][0-9]\"/VERSION\ =\ \"$1\"/} src/main.d > main.d.tmp
+sed {s/openquran\ [0-9]\.[0-9][0-9]/openquran\ $1/} README > README.tmp
 mv dsss.conf.tmp dsss.conf
 mv main.d.tmp src/main.d
+mv README.tmp README
 
 NAME="openquran"
 BUILD="./build/"
