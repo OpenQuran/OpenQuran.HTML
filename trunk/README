@@ -24,5 +24,8 @@ extracted the program and type "quran". You will see the main help message.
 
 Translations
 ------------
-Download Qur'an translations from: http://code.google.com/p/openquran/downloads/list
+The program comes without any Qur'an files. You can download the ones you're
+interested in from this page:
+http://code.google.com/p/openquran/downloads/list?q=label:QuranFile
+
 Extract the archive(s) to the same folder where the executable resides.
