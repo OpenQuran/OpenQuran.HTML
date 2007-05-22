@@ -29,14 +29,16 @@ else
 +/
 wchar[] GetExecutableFileName()
 {
-  uint destsize = 256;
   uint strlen;
-  wchar* dest = cast(wchar*) malloc(destsize * wchar.sizeof);
-  if (!dest)
-    goto Lerr;
+  uint destsize = 256;
+  wchar* dest;
 
   while(1)
   {
+    dest = cast(wchar*) realloc(dest, destsize * wchar.sizeof);
+    if (!dest)
+      goto Lerr;
+
     strlen = GetModuleFileNameW(null, dest, destsize);
     if (!strlen)
       goto Lerr_free_dest;
@@ -44,9 +46,6 @@ wchar[] GetExecutableFileName()
       break;
     // Increase size of buffer
     destsize *= 2;
-    dest = cast(wchar*) realloc(dest, destsize * (wchar).sizeof);
-    if (!dest)
-      goto Lerr;
   }
 
   // Reduce buffer to the actual length of the string (excluding '\0'.)
