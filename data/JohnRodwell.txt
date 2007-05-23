@@ -5337,11 +5337,13 @@ divided.
 
 SURA XXVI.–THE POETS [LVI.]
 
-MECCA.–228 Verses
+MECCA.–227 Verses
 
 In the Name of God, the Compassionate, the Merciful
 
-Ta. Sin. Mim.2 These are the signs of the lucid Book.
+Ta. Sin. Mim.2
+
+These are the signs of the lucid Book.
 
 Haply thou wearest thyself away with grief because they will not believe.
 
@@ -5386,7 +5388,9 @@ passed years of thy life among us?
 And yet what a deed is that which thou hast done!6 Thou art one of the
 ungrateful."
 
-He said, "I did it indeed, and I was one of those who erred: And I fled from
+He said, "I did it indeed, and I was one of those who erred:
+
+And I fled from
 you because I feared you; but my Lord hath given me wisdom and hath made me
 one of his Apostles.
 
@@ -5457,7 +5461,6 @@ The Lord of Moses and of Aaron."
 Said Pharaoh, "Have ye then believed on him ere I gave you leave? He truly is
 your master who hath taught you magic.8 But bye and bye ye shall surely know
 my power.
-
 I will cut off your hands and feet on opposite sides, and I will have you all
 crucified."
 
@@ -5839,7 +5842,6 @@ Seest thou not how they rove distraught in every valley?
 And that they say that which they do not?
 
 Save those who believe and do good works, and oft remember God;
-
 And who defend themselves when unjustly treated. But they who treat them
 unjustly shall find out what a lot awaiteth them.
 
