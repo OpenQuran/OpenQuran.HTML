@@ -7630,7 +7630,6 @@ MECCA.–28 Verses
 In the Name of God, the Compassionate, the Merciful
 
 SAY: It hath been revealed to me that a company of
-
 DJINN1 listened, and said,–"Verily, we have heard a marvellous discourse
 (Koran);
 
@@ -7691,7 +7690,6 @@ SAY: I call only upon my Lord, and I join no other being with Him.
 SAY: No control have I over what may hurt or benefit you.
 
 SAY: Verily none can protect me against God;
-
 Neither shall I find any refuge beside Him.
 
 My sole work is preaching from God, and His message: and for such as shall
@@ -7703,8 +7701,9 @@ shall they know which side was the weakest in a protector and the fewest in
 number.
 
 SAY: I know not whether that with which ye are threatened be nigh, or whether
-my Lord hath assigned it to a distant day: He knoweth the secret, nor doth He
-divulge his secret to any,
+my Lord hath assigned it to a distant day:
+
+He knoweth the secret, nor doth He divulge his secret to any,
 
 Except to that Apostle who pleaseth Him; and before him and behind him He
 maketh a guard to march:
