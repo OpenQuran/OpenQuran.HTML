@@ -16683,7 +16683,6 @@ SAY: Go through the land: then see what hath been the end of those who
 treated them as liars.
 
 SAY: Whose is all that is in the Heavens and the Earth?
-
 SAY: God's. He had imposed mercy on Himself as a law. He will surely assemble
 you on the Resurrection day; there is no doubt of it. They who are the
 authors of their own ruin, are they who will not believe.
@@ -16895,8 +16894,9 @@ you to taste the violence of others. See how variously we handle the wondrous
 verses, that haply they may become wise!
 
 But thy people hath accused the Koran of falsehood, though it be the truth:
-SAY: I am not in charge of you: To every prophecy is its set time, and bye-
-and-bye ye shall know it!
+SAY: I am not in charge of you:
+
+To every prophecy is its set time, and bye-and-bye ye shall know it!
 
 And when thou seest those who busy themselves with cavilling at our signs,
 withdraw from them till they busy themselves in some other subject: and if
@@ -16926,7 +16926,6 @@ shall be gathered.
 
 And it is He who hath created the Heavens and the Earth, in truth, and when
 He saith to a thing, "Be," it is.
-
 His word is the truth: and His the kingdom, on the day when there shall be a
 blast on the trumpet: He knoweth alike the unseen and the seen: and He is the
 Wise, the Cognisant.
@@ -17179,7 +17178,6 @@ hereafter shall ye know
 
 Whose will be the recompense of the abode! Verily, the ungodly shall not
 prosper.
-
 Moreover, they set apart a portion of the fruits and cattle35 which he hath
 produced, and say, "This for God"–so deem they–"And this for his companions,
 whom we associate with Him." But that which is for these companions of
@@ -17308,8 +17306,9 @@ the creed of Abraham, the sound in faith; for he was not of those who join
 gods with God.
 
 SAY: My prayers and my worship and my life and my death are unto God, Lord of
-the Worlds. He hath no associate. This am I commanded, and I am the first of
-the Muslims.
+the Worlds.
+
+He hath no associate. This am I commanded, and I am the first of the Muslims.
 
 SAY: Shall I seek any other Lord than God, when He is Lord of all things? No
 soul shall labour but for itself; and no burdened one shall bear another's
