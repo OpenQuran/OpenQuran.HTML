@@ -1,6 +1,6 @@
 openquran 0.22
 --------------
-Copyright (c) by Aziz Köksal <aziz.kerim@gmail.com>
+Copyright (c) by Aziz Köksal <aziz.koeksal@gmail.com>
 This program is free software, licensed under the GPL2.
 Please, read the accompanying License text-file for further information.
 
@@ -35,5 +35,5 @@ Bugs
 Every software has bugs. If you encountered issues with the program, or if you
 have found an error in a Qur'an file (not in the style or semantics but in
 terms of punctuation, spelling etc.), then please drop me an e-Mail
-(aziz.kerim@gmail.com) or report the problem here:
+(aziz.koeksal@gmail.com) or report the problem here:
 http://code.google.com/p/openquran/issues/list
