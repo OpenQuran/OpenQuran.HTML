@@ -13872,7 +13872,9 @@ MECCA.–69 Verses
 
 In the Name of God, the Compassionate, the Merciful
 
-ELIF. LAM. MIM.1 Think men that when they say, "We believe," they shall be
+ELIF. LAM. MIM.1
+
+Think men that when they say, "We believe," they shall be
 let alone and not be put to proof?
 
 We put to proof those who lived before them; for God will surely take
@@ -13954,7 +13956,6 @@ believe.
 
 And Abraham said, "Of a truth ye have taken idols along with God as your bond
 of union5 in this life present;
-
 But on the day of resurrection some of you shall deny the others, and some of
 you shall curse the others; and your abode shall be the fire, and ye shall
 have none to help."
@@ -14056,7 +14057,6 @@ recited to them? In this verily is a mercy and a warning to those who
 believe.
 
 SAY: God is witness enough between me and you.
-
 He knoweth all that is in the Heavens and the Earth, and they who believe in
 vain things13 and disbelieve in God–these shall be the lost ones.
 
