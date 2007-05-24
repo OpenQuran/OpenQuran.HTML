@@ -7287,7 +7287,9 @@ MECCA.–89 Verses
 
 In the Name of God, the Compassionate, the Merciful
 
-Ha. Mim.1 By the Luminous Book!
+Ha. Mim.1
+
+By the Luminous Book!
 
 We have made it an Arabic Koran that ye may understand:
 
@@ -7420,7 +7422,6 @@ For truly to thee and to thy people it is an admonition; and ye shall have an
 account to render for it at last.10
 
 And ask our Sent Ones whom we have sent before thee,
-
 "Appointed we gods beside the God of Mercy whom they should worship?"11
 
 Of old sent we Moses with our signs to Pharaoh and his nobles: and he said,
@@ -7443,8 +7444,7 @@ the kingdom of Egypt mine, and these rivers which flow at my feet?13 Do ye
 not behold?
 
 Am I not mightier than this despicable fellow,
-
-And who scarce can speak distinctly?
+and who scarce can speak distinctly?
 
 Have bracelets of gold14 then been put upon him, or come there with him a
 train of Angels?"
