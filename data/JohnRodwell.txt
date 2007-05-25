@@ -13171,7 +13171,9 @@ MECCA.–88 Verses
 
 In the Name of God, the Compassionate, the Merciful
 
-TA. SIN. MIM.1 These are the signs of the lucid Book.
+TA. SIN. MIM.1
+
+These are the signs of the lucid Book.
 
 We will recite to thee portions of the History of Moses and Pharaoh with
 truth, for the teaching of the faithful.
@@ -13248,7 +13250,6 @@ me in an even path."
 
 And when he arrived at the water of Madian, he found at it a company of men
 watering.
-
 And he found beside them, two women8 keeping back their flock: "Why do ye,"
 said he, "thus?" They said "We shall not water till the shepherds shall have
 driven off; for our father is very aged."
