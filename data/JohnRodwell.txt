@@ -10396,7 +10396,9 @@ MECCA.–54 Verses
 
 In the Name of God, the Compassionate, the Merciful
 
-HA. MIM.2 A Revelation from the Compassionate, the Merciful!
+HA. MIM.2
+
+A Revelation from the Compassionate, the Merciful!
 
 A Book whose verses (signs) are MADE PLAIN–an Arabic Koran, for men of
 knowledge;
@@ -10484,7 +10486,6 @@ that ye may overpower the voice of the reader."
 
 Surely therefore will we cause the unbelievers to taste a terrible
 punishment;
-
 And recompense them according to the worst of their actions.
 
 This the reward of the enemies of God,–the Fire! it shall be their eternal
