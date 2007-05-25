@@ -3269,8 +3269,7 @@ The future and the present are in the hand of God:
 
 And many as are the Angels in the Heavens, their intercession shall be of no
 avail8
-
-Until God hath permitted it to whom he shall please and will accept.
+until God hath permitted it to whom he shall please and will accept.
 
 Verily, it is they who believe not in the life to come, who name the angels
 with names of females:
@@ -3342,8 +3341,9 @@ Which then of thy Lord's benefits wilt thou make a matter of doubt?11
 
 He who warneth you is one of the warners of old.
 
-The day that must draw nigh, draweth nigh already: and yet none but God can
-reveal its time.
+The day that must draw nigh, draweth nigh already:
+
+And yet none but God can reveal its time.
 
 Is it at these sayings that ye marvel?
 
