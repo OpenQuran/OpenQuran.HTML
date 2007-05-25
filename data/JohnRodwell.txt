@@ -6675,8 +6675,9 @@ MECCA.–88 Verses
 
 In the Name of God, the Compassionate, the Merciful
 
-SAD.1 By the Koran full of warning! In sooth the Infidels are absorbed in
-pride, in contention with thee.
+SAD.1 By the Koran full of warning!
+
+In sooth the Infidels are absorbed in pride, in contention with thee.
 
 How many generations have we destroyed before them! And they cried for mercy
 but no time was it of escape!
@@ -6803,7 +6804,6 @@ for a monition to men of judgment.
 
 And we said, "Take in thine hand a rod, and strike15 with it, nor break thine
 oath." Verily, we found him patient!
-
 How excellent a servant, one who turned to Us was he!
 
 And remember our servants Abraham and Isaac and Jacob, men of might and
@@ -6879,7 +6879,6 @@ Save Eblis. He swelled with pride, and became an unbeliever.
 
 "O Eblis," said God, "what hindereth thee from prostrating thyself before him
 whom my hands have made?
-
 Is it that thou are puffed up with pride? or art thou a being of lofty
 merit?"
 
@@ -6900,7 +6899,9 @@ He said: "I swear by thy might then that all of them will I seduce,
 
 Save thy sincere servants among them."
 
-He said: "It is truth, and the truth I speak. From thee will I surely fill
+He said: "It is truth, and the truth I speak.
+
+From thee will I surely fill
 Hell, and with such of them as shall follow thee, one and all.
 
 Say: I ask no wage of you for this, nor am I one who intermeddleth.
