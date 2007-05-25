@@ -12661,7 +12661,6 @@ They said, "By God, it is thy old mistake."
 
 And when the bearer of good tidings came, he cast it on his face, and Jacob's
 eyesight returned."
-
 Then he said, "Did I not tell you that I knew from God what ye knew not?"
 
 They said, "Our father, ask pardon for our crimes for us, for we have indeed
@@ -12687,8 +12686,9 @@ just."
 
 This is one of the secret histories25 which we reveal unto thee. Thou wast
 not present with Joseph's brethren when they conceived their design and laid
-their plot: but the greater part of men, though thou long for it, will not
-believe.
+their plot:
+
+But the greater part of men, though thou long for it, will not believe.
 
 Thou shalt not ask of them any recompense for this message. It is simply an
 instruction for all mankind.
