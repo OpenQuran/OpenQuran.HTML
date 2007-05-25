@@ -14632,7 +14632,6 @@ gardens of delight:
 
 Their cry therein, "Glory be to thee, O God!" and their salutation therein,
 "Peace!"
-
 And the close of their cry, "Praise be to God, Lord, of all creatures!"
 
 Should God hasten evil on men as they fain would hasten their good, then were
@@ -14895,7 +14894,9 @@ They said: "Art thou come to us to pervert us from the faith in which we
 found our fathers, and that you twain shall bear rule in this land? But we
 believe you not."
 
-And Pharaoh said: "Fetch me every skilled magician." And when the magicians
+And Pharaoh said: "Fetch me every skilled magician."
+
+And when the magicians
 arrived, Moses said to them, "Cast down what ye have to cast."
 
 And when they had cast them down, Moses said, "Verily, God will render vain
