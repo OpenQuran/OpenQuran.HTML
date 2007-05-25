@@ -10,6 +10,7 @@ import Quran;
 enum TOK
 {
   Dash,
+  Plus,
   Comma,
   Colon,
   Semicolon,
@@ -21,6 +22,7 @@ enum TOK
 char[][TOK.max+1] TOKname =
 [
   "dash",
+  "plus",
   "comma",
   "colon",
   "semicolon",
@@ -58,6 +60,10 @@ class Reference
   int[] getChapterIndices()
   {
     int[] indices;
+
+    bool inRange(int idx)
+    { return 0 < idx && idx <= NR_OF_CHAPTERS; }
+
     foreach(range; chapters)
     switch(range.type)
     {
@@ -66,16 +72,16 @@ class Reference
           indices ~= i;
         break;
       case Range.Type.Number:
-        if (range.left <= NR_OF_CHAPTERS)
+        if (inRange(range.left))
           indices ~= range.left -1;
         break;
       case Range.Type.Number_Any:
-        if (range.left <= NR_OF_CHAPTERS)
+        if (inRange(range.left))
           for(int i = range.left -1; i < NR_OF_CHAPTERS; ++i)
             indices ~= i;
       case Range.Type.Number_Number:
         int left = range.left, right = range.right;
-        if (left <= NR_OF_CHAPTERS && right <= NR_OF_CHAPTERS)
+        if (inRange(left) && inRange(right))
           for(int i = left -1; i < right; ++i)
             indices ~= i;
         break;
@@ -87,7 +93,7 @@ class Reference
 
   int[] getVerseIndices(int chapterIdx)
   {
-    assert( 0 <= chapterIdx && chapterIdx < NR_OF_CHAPTERS );
+    assert( 0 <= chapterIdx && chapterIdx < NR_OF_CHAPTERS, "Chapter index out of range.");
     int[] indices;
     foreach(range; verses)
     switch(range.type)
@@ -161,7 +167,7 @@ class ParseError : Error
 
   char[] toString()
   {
-    return format(input,"\n"~repeat(" ",errorPos)~"^\nParseError: ",msg);
+    return format(input,"\n"~repeat(" ",errorPos)~"^\nError in reference list: ",msg);
   }
 
   private char[] input;
@@ -271,6 +277,9 @@ class ReferenceListParser
         case '-':
           tok.id = TOK.Dash;
           goto Lsymbols;
+        case '+':
+          tok.id = TOK.Plus;
+          goto Lsymbols;
         case '*':
           tok.id = TOK.Wildcard;
           goto Lsymbols;
@@ -371,8 +380,7 @@ class ReferenceListParser
 
         if (nextToken() == TOK.Dash )
         {
-          nextToken();
-          switch (token.id)
+          switch (nextToken())
           {
             case TOK.Number:
               right = token.number;
@@ -384,6 +392,13 @@ class ReferenceListParser
             default:
               goto Lerr;
           }
+        }
+        else if (token.id == TOK.Plus)
+        {
+          if (nextToken() != TOK.Number)
+            goto Lerr;
+          right = left + token.number;
+          type = Range.Type.Number_Number;
         }
         else
           goto Lexit; // skip nextToken() below
