@@ -10269,7 +10269,9 @@ MECCA.–30 Verses
 
 In the Name of God, the Compassionate, the Merciful
 
-ELIF. LAM. MIM.1 This Book is without a doubt a Revelation sent down from the
+ELIF. LAM. MIM.1
+
+This Book is without a doubt a Revelation sent down from the
 Lord of the Worlds.
 
 Will they say, He hath forged it? Nay, it is the truth from thy Lord that
@@ -10296,7 +10298,6 @@ and seeing and hearts: what little thanks do ye return!
 
 And they say, "What! when we shall have lain hidden in the earth, shall we
 become a new creation?"
-
 Yea, they deny that they shall meet their Lord.
 
 SAY: The angel of death who is charged with you shall cause you to die: then
