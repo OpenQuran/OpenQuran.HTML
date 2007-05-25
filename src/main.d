@@ -113,10 +113,10 @@ int[2][] transformToRanges(int[] list)
 /// Options that can be provided through the command line.
 enum Options
 {
-  Alternating = 1, /// Print verses in alternating order.
-  References = 2,  /// Print references as the result of a search.
-  Random = 4,      /// Print a random verse.
-  MatchAny = 8     /// Match any word in the query.
+  Alternating = 1,    /// Print verses in alternating order.
+  References  = 1<<1, /// Print references as the result of a search.
+  Random      = 1<<2, /// Print a random verse.
+  MatchAny    = 1<<3  /// Match any word in the query.
 }
 
 /++
