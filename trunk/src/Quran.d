@@ -75,7 +75,7 @@ class Quran
 
     char[][] header;
 
-    for(int i; i<2; ++i)
+    for(int i; i<3; ++i)
     {
       int nlpos = find(data, '\n');
       if (nlpos == -1)
@@ -84,10 +84,17 @@ class Quran
       data = data[nlpos+1..$];
     }
 
-    if (find(header[0],"Author:") != 0 || find(header[1],"Lang:") != 0)
+    if (find(header[0],"Author:") != 0 ||
+        find(header[1],"Lang:")   != 0 ||
+        find(header[2],"Titles:") != 0)
       goto Lcorrupt;
+
     author = std.string.strip(header[0][7..$]);
     language = std.string.strip(header[1][5..$]);
+    titles = split(strip(header[2][7..$]), ";");
+
+    if (titles.length != NR_OF_CHAPTERS)
+      goto Lcorrupt;
 
     // Currently a new-line character is used to separate the verses.
     // This may change in case there are translations out there
@@ -121,8 +128,9 @@ class Quran
   public char[][] getVerses()
   { return verses; }
 
-  private char[] author;   /// The author name of the Qur'an file.
-  private char[] language; /// A two or three letter language code.
-  private char[] fileName; /// Path to the file.
-  private char[][] verses; /// An array of all 6236 verses.
+  private char[]   author;   /// The author name of the Qur'an file.
+  private char[]   language; /// A two or three letter language code.
+  private char[][] titles;   /// Titles of all chapters.
+  private char[]   fileName; /// Path to the file.
+  private char[][] verses;   /// An array of all 6236 verses.
 }
