@@ -335,25 +335,29 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
 }
 
 const char[] VERSION = "0.22";
-const char[] helpMessage =
+
+const char[] usageShow = "quran show <references> <authors> [options]";
+const char[] usageSearch = "quran search <query> <authors> [options]";
+
+const char[] helpMain =
 `openquran v`~VERSION~`
 Copyright (c) 2007 by Aziz Köksal
 
 Usage:
-  quran show <references> <authors> [options]
-  quran search <query> <references> <authors> [options]
+  `~usageShow~`
+  `~usageSearch~`
 
 Type 'quran help <sub-command>' for more help on a particular sub-command.
 `;
 
-const char[] showMessage =
+const char[] helpShow =
 `Show verses from the Qur'an.
 Usage:
-  quran show <references> <authors> [options]
+  `~usageShow~`
 
 Options:
-  -r           : print a random verse.
-  -rNUM        : print NUM random verses.
+  -rnd         : print a random verse.
+  -rndNUM      : print NUM random verses.
   -a           : when printing verses alternate between authors.
 
 References:
@@ -367,23 +371,26 @@ References:
   38-98,100:5-10,18  # Chapter 38 to 98 and 100, Verses 5 to 10 and 18.
   2-10:4-*           # Chapter 2 to 10, Verses 4 to end of each chapter.
   *:1,2              # First two verses of all chapters (equiv. to 1-114:1,2).
+  24+3:34+6          # Relative ranges. Equivalent to 24-27:34-40
 
 Authors:
-  A list of authors separated by a comma (no spaces allowed.)
+  Specify an author or a list of authors.
 
 Examples:
   quran show 113-114 yusufali
-  quran show -a "*:1" pickthal,shakir
+  quran show -a "*:1" pickthall shakir
+  quran show -rnd2 yusufali
 `;
 
-const char[] searchMessage =
+const char[] helpSearch =
 `Search for a string in the Qur'an.
 Usage:
-  quran search <query> [references] <authors> [options]
+  `~usageSearch~`
 
 Options:
   -p           : print numerical references instead of text.
   -any         : do an OR-search instead of the default AND-search.
+  -r reflist   : restrict your query to a specific part of the Qur'an.
 
 Query:
   A usual query consists of one or many words. There is support for
@@ -394,22 +401,34 @@ Query:
   A tilde at the start of a word marks it for fuzzy searching:
     ~adhan
 
-References:
-  If not omitted you can restrict your query to a specific part of the Qur'an.
-
 Examples:
-  quran search Moses pickthal,shakir
-  quran search -p Allah "42-93" yusufali
+  quran search Moses pickthall shakir
+  quran search Allah yusufali -p -r "42-93"
 `;
 
 void printHelp(char[] about)
 {
-  if (about == "show")
-    writefln(showMessage);
-  else if (about == "search")
-    writefln(searchMessage);
-  else
-    writefln(helpMessage);
+  char[] help = helpMain;
+  switch (about)
+  {
+    case "show":   help = helpShow;   break;
+    case "search": help = helpSearch; break;
+    default:
+  }
+  writefln(help);
+}
+
+void printUsage(char[] about)
+{
+  char[] usage;
+  switch (about)
+  {
+    case "show":   usage = usageShow;   break;
+    case "search": usage = usageSearch; break;
+    default:
+      assert(0, "Unhandled switch case in printUsage().");
+  }
+  writefln("Usage:  \n  ", usage);
 }
 
 version(linux)
@@ -451,82 +470,120 @@ void main(char[][] args)
     Strings.useColor = isatty(fileno(stdout));
   Strings.init();
 
+  char[] errorMsg;
+  char[] usageMsg;
+
   switch (args[1])
   {
     case "search":
-      if (args.length < 4 || args[2] == "--help")
-        return printHelp("search");
+      usageMsg = "search";
+      if (args.length < 3)
+      {
+        errorMsg = "missing query and author(s) arguments.";
+        goto Lerr;
+      }
+
       args = args[2..$];
 
       int options;
-      char[][] searchArgs;
+      char[] refList;
+      char[][] callArgs;
 
-      foreach (arg; args)
+      for(int i; i < args.length; ++i)
       {
-        if (find(arg, "-") == 0)
+        char[] arg = args[i];
+        if (arg.length && arg[0] == '-')
         {
-          if (arg == "-p")
-            options |= Options.References;
-          else if (arg == "-any")
-            options |= Options.MatchAny;
+          switch(arg)
+          {
+            case "-p":
+              options |= Options.References;
+              break;
+            case "-any":
+              options |= Options.MatchAny;
+              break;
+            case "-r":
+              if (i+1 >= args.length)
+              {
+                errorMsg = "missing reference list after -r.";
+                goto Lerr;
+              }
+              refList = args[++i];
+              break;
+            default:
+              errorMsg = format("invalid option: %s.", arg);
+              goto Lerr;
+          }
         }
         else
-          searchArgs ~= arg;
+          callArgs ~= arg;
       }
 
-      if (searchArgs.length < 3)
+      if (callArgs.length < 2)
       {
-        // Implicitly add "*" when references were omitted.
-        searchArgs.length = searchArgs.length + 1;
-        searchArgs[2..$] = searchArgs[1..$-1].dup;
-        searchArgs[1] = "*";
+        errorMsg = "no author(s) specified.";
+        goto Lerr;
       }
 
-      if (searchArgs.length < 3)
-        return printHelp("search");
+      if (!refList)
+        refList = "*";
 
       try
-        search(searchArgs[0], searchArgs[1], split(searchArgs[2], ","), options);
+        search(callArgs[0], refList, callArgs[1..$], options);
       catch(Exception e)
         writefln(e);
+
       return;
     case "show":
-      if (args.length < 4 || args[2] == "--help")
-        return printHelp("show");
+      usageMsg = "show";
+      if (args.length < 3)
+      {
+        errorMsg = "missing references and author(s) arguments.";
+        goto Lerr;
+      }
+
       args = args[2..$];
 
       int options;
       int randomNUM;
+      char[][] callArgs;
 
-      char[][] showArgs;
       foreach (arg; args)
       {
-        if (arg == "-a")
-          options |= Options.Alternating;
-        else if (find(arg, "-r") == 0)
+        if (arg.length && arg[0] == '-')
         {
-          options |= Options.Random;
-          if (arg.length > 2)
-            randomNUM = atoi(arg[2..$]);
+          if (arg == "-a")
+            options |= Options.Alternating;
+          else if (find(arg, "-rnd") == 0)
+          {
+            options |= Options.Random;
+            if (arg.length > 4)
+              randomNUM = atoi(arg[4..$]);
+          }
+          else
+          {
+            errorMsg = format("invalid option: %s.", arg);
+            goto Lerr;
+          }
         }
         else
-        {
-          showArgs ~= arg;
-        }
+          callArgs ~= arg;
       }
 
-      if (showArgs.length < 2 && options & Options.Random)
+      if (options & Options.Random)
+        callArgs = ["*"] ~ callArgs;
+
+      if (callArgs.length < 2)
       {
-        // Insert "*" if <references> was omitted and -r was specified.
-        showArgs.length = showArgs.length + 1;
-        showArgs[1..$] = showArgs[0..$-1].dup;
-        showArgs[0] = "*";
+        errorMsg = "no author(s) specified.";
+        goto Lerr;
       }
 
-      if (showArgs.length < 2)
-        return printHelp("show");
+      try
+        show(callArgs[0], callArgs[1..$], options, randomNUM);
+      catch(Exception e)
+        writefln(e);
 
-      show(showArgs[0], split(showArgs[1], ","), options, randomNUM);
       return;
     case "help":
       if (args.length > 2)
@@ -535,4 +592,10 @@ void main(char[][] args)
       printHelp("");
       return;
   }
+
+  return;
+Lerr:
+  printUsage(usageMsg);
+  writefln("Error: ", errorMsg);
+  return -1;
 }
