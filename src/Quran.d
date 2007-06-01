@@ -123,6 +123,21 @@ class Quran
     return verses[flatChapterIdx .. (flatChapterIdx + verses_table[chapterIndex])];
   }
 
+  public char[] getTitle(int chapterIndex)
+  in { assert( 0 <= chapterIndex && chapterIndex < 114 ); }
+  body
+  {
+    return titles[chapterIndex];
+  }
+
+  invariant
+  {
+    assert(titles.length == 114);
+    assert(verses.length == NR_OF_VERSES);
+  }
+
+  public char[][] getTitles()
+  { return titles; }
   public char[] getAuthor()
   { return author; }
   public char[][] getVerses()
