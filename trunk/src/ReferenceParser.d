@@ -244,6 +244,7 @@ class ReferenceListParser
   */
   public void scan(inout Token tok)
   {
+    assert((p-input.ptr) < (input.length));
     while (1)
     {
       char c = *p;
@@ -252,6 +253,7 @@ class ReferenceListParser
         case 0:
           tok.id = TOK.Eof;
           tok.pos = p - input.ptr;
+          ++p;
           return;
         case ' ','\t':
           p++;
@@ -321,7 +323,6 @@ class ReferenceListParser
         continue;
       if (token.id != TOK.Semicolon && token.id != TOK.Eof && token.id != TOK.Number)
         throw new ParseError("expected number, semicolon or end of input, but found " ~ token.toString(), input, token.pos);
-      nextToken();
     }
     return refs;
   }
@@ -365,6 +366,7 @@ class ReferenceListParser
       Number
       Number '-' '*'
       Number '-' Number
+      Number '+' Number
   </pre>
   +/
   public Range parseRange()
