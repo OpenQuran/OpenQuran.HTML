@@ -1,0 +1,185 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>The Qur'an</title>
+<style type="text/css">
+.hidden { display: none }
+#list p { margin: 0px; padding: 0px; }
+</style>
+<script type="text/javascript">
+{Quran.js}
+</script>
+<script type="text/javascript">
+{ReferenceParser.js}
+</script>
+<script type="text/javascript">
+// Authors = [
+//   {name:"Yusuf Ali"},
+//   {name:"Rashad Khalifa"},
+//   {name:"Edip Yüksel"}
+// ];
+{QuranObjects}
+</script>
+<script type="text/javascript">
+/**
+  Author: Aziz Köksal
+  License: GPL2
+*/
+function onMouseClick()
+{
+  var divTag = this.nextSibling.nextSibling;
+  if (divTag.className == "")
+    divTag.className = "hidden";
+  else
+    divTag.className = "";
+}
+
+function getActiveAuthors()
+{
+  var div = document.getElementById("list");
+  var nodes = div.childNodes;
+  var authors = [];
+  for(var i=0; i < nodes.length; ++i)
+  {
+    var cbox = nodes[i].childNodes[0];
+    if (cbox.checked) {
+      var index = /(\d+)$/.exec(cbox.id)[1];
+      authors.push(Authors[index]);
+    }
+  }
+  return authors;
+}
+
+function getChapter(obj, index)
+{
+  var slice = chapters_table[index];
+  return obj.verses.slice(slice[0], slice[1]);
+}
+
+function display(refs)
+{
+  var html = "<div>";
+  var authors = getActiveAuthors();
+  for(var i=0; i < refs.length; ++i)
+  {
+    var aref = refs[i];
+    var cindices = aref.getChapterIndices();
+    for(var j=0; j < cindices.length; ++j)
+    {
+      var cidx = cindices[j];
+      var vindices = aref.getVerseIndices(cidx);
+      for(var k=0; k < vindices.length; ++k)
+      {
+        var vidx = vindices[k];
+        html += '<p class="ref">'+(cidx+1)+":"+(vidx+1)+"</p><p>";
+        for(var l=0; l < authors.length; ++l)
+        {
+          var chapter = authors[l].chapters[cidx];
+          html += '<span class="author">'+authors[l].name+"</span><blockquote><p>"+ chapter[vidx] + "</p></blockquote>";
+        }
+        html += "</p>";
+      }
+    }
+  }
+  html += "</div>";
+  return html;
+}
+
+function command(cmdline)
+{
+  var parser = new ReferenceListParser(cmdline);
+//   var tokens;
+  var refs;
+  try
+  {
+//     tokens = parser.getTokens();
+    refs = parser.parseReferences();
+  }
+  catch (e)
+  {
+    if (!(e instanceof ParseError))
+      throw e;
+    var errorMsg = "";
+    if (e.pos == cmdline.length)
+      errorMsg = cmdline + '<u> </u>';
+    else
+      errorMsg = cmdline.slice(0, e.pos) + "<u>" + cmdline[e.pos] + "</u>" + cmdline.slice(e.pos+1,cmdline.length);
+    errorMsg = "<pre>"+errorMsg+"</pre>"+"Error in reference list: " + e.msg;
+
+    var errDiv = document.getElementById("error");
+    errDiv.innerHTML = errorMsg;
+    setTimeout("removeErrorMsg()", 5000);
+    return;
+  }
+//   alert(tokens);
+//   alert(display(refs));
+  document.getElementById("text").innerHTML = display(refs);
+}
+
+function removeErrorMsg()
+{
+  var errDiv = document.getElementById("error");
+  errDiv.innerHTML = "";
+}
+
+function init()
+{
+  var chapters = document.getElementsByTagName("h2");
+  for (var i=0; i < chapters.length; i++)
+  {
+    chapters[i].onclick = onMouseClick;
+  }
+
+  // Set onkeydown event handler on input
+  var input = document.getElementById("cmd");
+  input.onkeydown = function(e) {
+    if (e.keyCode == 13)
+      command(this.value);
+  };
+
+  // Set authors list
+  var div = document.getElementById("list");
+  for (var i=0; i < Authors.length; ++i)
+  {
+//     var p = document.createElement("p");
+//     p.appendChild(document.createTextNode(Authors[i].name));
+//     div.appendChild(p);
+    div.innerHTML += '<p><input type="checkbox" id="author'+i+'"/>' + Authors[i].name + "</p>";
+  }
+}
+
+function visibilityOfChapters(value)
+{
+  var span_collapse = document.getElementById("collapse");
+  var span_expand = document.getElementById("expand");
+  if (value == "hidden")
+  {
+    span_collapse.className = "hidden";
+    span_expand.className = "";
+  }
+  else
+  {
+    span_expand.className = "hidden";
+    span_collapse.className = "";
+  }
+
+  var divs = document.getElementsByTagName("div");
+  for (var i = 0; i < divs.length; i++)
+  {
+    divs[i].className = value;
+  }
+}
+</script>
+</head>
+<body onload="init()">
+<h1>The Qur'an</h1>
+Available authors:
+<div id="list"></div>
+<input type="text" id="cmd" /><input type="checkbox" id="interleave">interleave verses</input>
+<div id="error" onclick="removeErrorMsg()"></div>
+<p>Click on a chapter header to expand.<br>
+<span id="expand"><a href='javascript:visibilityOfChapters("")'>Expand all chapters</a> (don't click on slow computers)</span>
+<span id="collapse" class="hidden"><a href='javascript:visibilityOfChapters("hidden")'>Collapse all chapters</a></span></p>
+<div id="text"></div>
+</body>
+</html>
