@@ -94,7 +94,7 @@ void main(char[][] args)
       writefln(e);
 
   // Construct javascript array of author objects
-  char[] authorsArray = "Authors = [\n";
+  char[] authorsArray = "[\n";
 
   foreach(quran; qurans)
   {
