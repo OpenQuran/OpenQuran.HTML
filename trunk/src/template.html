@@ -3,6 +3,13 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>The Qur'an</title>
 <style type="text/css">
+h1 {
+  padding: 5px;
+  background-color: #CCDDEE;
+  border-bottom: 2px solid #399;
+}
+h1 a { text-decoration: none; color: #237;}
+h1 a:hover { color: #469; }
 .hidden { display: none }
 #list p { margin: 0px; padding: 0px; }
 h2 { margin-left: 5px; font-size: 1em; }
@@ -32,12 +39,12 @@ h2 { margin-left: 5px; font-size: 1em; }
 {ReferenceParser.js}
 </script>
 <script type="text/javascript">
-// Authors = [
+// g_Authors = [
 //   {name:"Yusuf Ali"},
 //   {name:"Rashad Khalifa"},
 //   {name:"Edip Yüksel"}
 // ];
-{QuranObjects}
+g_Authors = {QuranObjects}
 </script>
 <script type="text/javascript">
 /**
@@ -63,7 +70,7 @@ function getActiveAuthors()
     var cbox = nodes[i].childNodes[0];
     if (cbox.checked) {
       var index = /(\d+)$/.exec(cbox.id)[1];
-      authors.push(Authors[index]);
+      authors.push(g_Authors[index]);
     }
   }
   return authors;
@@ -262,16 +269,16 @@ function init()
   var div = document.getElementById("list");
   var list = document.getElementById("chapterListFromAuthor");
   var option;
-  for (var i=0; i < Authors.length; ++i)
+  for (var i=0; i < g_Authors.length; ++i)
   {
 //     var p = document.createElement("p");
-//     p.appendChild(document.createTextNode(Authors[i].name));
+//     p.appendChild(document.createTextNode(g_Authors[i].name));
 //     div.appendChild(p);
     option = document.createElement("option");
-    option.innerHTML = Authors[i].name;
+    option.innerHTML = g_Authors[i].name;
     option.value = i;
     list.appendChild(option);
-    div.innerHTML += '<p><input type="checkbox" id="author'+i+'">' + Authors[i].name + "</input></p>";
+    div.innerHTML += '<p><input type="checkbox" id="author'+i+'">' + g_Authors[i].name + "</input></p>";
   }
 
   populateChapterList(0);
@@ -286,7 +293,7 @@ function empty(node)
 
 function populateChapterList(authorId)
 {
-  var titles = Authors[authorId].titles;
+  var titles = g_Authors[authorId].titles;
   var list = document.getElementById("chapterList");
   empty(list);
   var option;
@@ -326,8 +333,9 @@ Chapters list: can switch between authors.
 */
 </script>
 </head>
-<body onload="init()">
-<h1>openquran<br><span style="font-size: 0.4em;">Version 0.22</span></h1>
+<body onload="init()" style="margin:0;padding:0;">
+<h1><a href="http://code.google.com/p/openquran/">openquran</a><br><span style="font-size: 0.4em;">Version 0.22</span></h1>
+<div style="padding:5px;">
 <div style="float:right">
 <select id="chapterListFromAuthor" onchange="changeAuthor(this)"></select><br/>
 <select id="chapterList" multiple="true" size="20" onchange="selectChapter(this)">
@@ -335,13 +343,14 @@ Chapters list: can switch between authors.
 </div>
 <p>Available authors:</p>
 <div id="list"></div>
-<input type="text" id="cmd" /> <button onclick="callCommand()">Show</button><br/>
-<input type="checkbox" id="interleave">interleave verses</input>
+<p>References: <input type="text" id="cmd" /> <button onclick="callCommand()">Show</button><br/>
+<input type="checkbox" id="interleave">interleave verses</input></p>
 <div id="error" onclick="removeErrorMsg()"></div>
 <!--
 <p>Click on a chapter header to expand.<br>
 <span id="expand"><a href='javascript:visibilityOfChapters("")'>Expand all chapters</a> (don't click on slow computers)</span>
 <span id="collapse" class="hidden"><a href='javascript:visibilityOfChapters("hidden")'>Collapse all chapters</a></span></p>-->
 <div id="text"></div>
+</div>
 </body>
 </html>
