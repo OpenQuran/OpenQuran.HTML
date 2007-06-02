@@ -90,7 +90,8 @@ function getHTML(refs)
     return "";
 
   var interleave = document.getElementById("interleave");
-
+  var fromAuthor = document.getElementById("chapterListFromAuthor");
+  var author = g_Authors[parseInt(fromAuthor.value)];
   if (interleave.checked && authors.length > 1)
   {
     for(var i=0; i < refs.length; ++i)
@@ -102,7 +103,7 @@ function getHTML(refs)
         var cidx = cindices[j];
         var cidxStr = ""+(cidx+1);
         var vindices = aref.getVerseIndices(cidx);
-        html += "<h2>"+cidxStr+" "+authors[0].titles[cidx]+'</h2><div class="hidde">';
+        html += "<h2>"+cidxStr+" "+author.titles[cidx]+'</h2><div class="hidde">';
         for(var k=0; k < vindices.length; ++k)
         {
           var vidx = vindices[k];
@@ -300,7 +301,7 @@ function populateChapterList(authorId)
   for (var i=0; i < titles.length; ++i)
   {
     option = document.createElement("option");
-    option.innerHTML = (i+1)+" "+titles[i];
+    option.appendChild(document.createTextNode((i+1)+" "+titles[i]));
     option.value = i+1;
     list.appendChild(option);
   }
