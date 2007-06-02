@@ -276,7 +276,7 @@ function init()
 //     p.appendChild(document.createTextNode(g_Authors[i].name));
 //     div.appendChild(p);
     option = document.createElement("option");
-    option.innerHTML = g_Authors[i].name;
+    option.appendChild(document.createTextNode(g_Authors[i].name));
     option.value = i;
     list.appendChild(option);
     div.innerHTML += '<p><input type="checkbox" id="author'+i+'">' + g_Authors[i].name + "</input></p>";
