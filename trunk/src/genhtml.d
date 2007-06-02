@@ -106,5 +106,5 @@ void main(char[][] args)
   authorsArray.length = authorsArray.length - 2;
   authorsArray ~= "\n]; // End of Authors array";
 
-  writefln(replace(template_html, "{QuranObjects}", authorsArray));
+  writefln("%s", replace(template_html, "{QuranObjects}", authorsArray));
 }
