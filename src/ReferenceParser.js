@@ -54,7 +54,21 @@ function Reference(chapters, verses)
   if (!(verses instanceof Array) || verses.length == 0)
     verses = [new Range(Type.Any, 0 , 0)];
   this.verses   = verses;
-
+/*
+  this.getChapterVerseNumberPairs = function()
+  {
+    var tuples;
+    var cindices = this.getChapterIndices();
+    for(var i=0; i < cindices.length; ++i)
+    {
+      var cidx = cindices[i];
+      var vindices = this.getVerseIndices(cidx);
+      for(var j=0; j < vindices.length; ++j)
+        tuples.push( [cidx, vindices[j]] );
+    }
+    return tuples;
+  }
+*/
   this.getChapterIndices = function()
   {
     var indices = [];
