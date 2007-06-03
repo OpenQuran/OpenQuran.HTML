@@ -211,6 +211,48 @@ function getNode(refs)
 }
 */
 
+/**
+  History class for keeping track of commands typed in a text box.
+*/
+function History()
+{
+  this.current = 0;
+  this.array = [];
+  this.getCurrent = function()
+  {
+    this.array[this.current];
+  }
+  this.add = function(item)
+  {
+    // Don't add item if it matches the last item in the array.
+    if (this.array.length > 1 &&
+        this.array.length-1 == this.current &&
+        this.array[this.current] == item)
+        return;
+
+    this.array.push( item );
+    this.current = this.array.length -1;
+  }
+  this.prev = function()
+  {
+    if (this.current > 0)
+      this.current--;
+    else if (this.array.length == 0)
+      return "";
+    return this.array[this.current];
+  }
+  this.next = function()
+  {
+    if (this.current < this.array.length -1)
+      this.current++;
+    else if (this.array.length == 0)
+      return "";
+    return this.array[this.current];
+  }
+}
+
+var g_RefsHistory = new History();
+
 function changeAuthor(select)
 {
   populateChapterList(parseInt(select.value));
@@ -279,7 +321,14 @@ function init()
   input.onkeydown = function(e) {
     if(!e) e = window.event;
     if (e.keyCode == 13)
+    {
       command(this.value);
+      g_RefsHistory.add(this.value);
+    }
+    else if(e.keyCode == 38)
+      this.value = g_RefsHistory.prev();
+    else if(e.keyCode == 40)
+      this.value = g_RefsHistory.next();
   };
 
   // Set authors list
