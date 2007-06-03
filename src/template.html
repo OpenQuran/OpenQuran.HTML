@@ -34,19 +34,13 @@ h2 { margin-left: 5px; font-size: 1em; }
 </style>
 <script type="text/javascript">
 {Quran.js}
-</script>
-<script type="text/javascript">
 {ReferenceParser.js}
-</script>
-<script type="text/javascript">
 // g_Authors = [
 //   {name:"Yusuf Ali"},
 //   {name:"Rashad Khalifa"},
 //   {name:"Edip Yüksel"}
 // ];
 g_Authors = {QuranObjects}
-</script>
-<script type="text/javascript">
 /**
   Author: Aziz Köksal
   License: GPL2
@@ -332,9 +326,10 @@ function visibilityOfChapters(value)
 Reorderable: insert hidden span
 Chapters list: can switch between authors.
 */
+window.onload = init;
 </script>
 </head>
-<body onload="init()" style="margin:0;padding:0;">
+<body style="margin:0;padding:0;">
 <h1><a href="http://code.google.com/p/openquran/">openquran</a><br><span style="font-size: 0.4em;">Version 0.22</span></h1>
 <div style="padding:5px;">
 <div style="float:right">
