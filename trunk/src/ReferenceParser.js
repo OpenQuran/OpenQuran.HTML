@@ -4,7 +4,7 @@
 */
 //module ReferenceParser;
 
-const TOK = {
+var TOK = {
   Dash : 0,
   Plus : 1,
   Comma : 2,
@@ -15,7 +15,7 @@ const TOK = {
   Eos : 7
 }
 
-const CharToTOK = {
+var CharToTOK = {
   '-' : TOK.Dash,
   '+' : TOK.Plus,
   ',' : TOK.Comma,
@@ -24,7 +24,7 @@ const CharToTOK = {
   '*' : TOK.Wildcard
 }
 
-const TOKname =
+var TOKname =
 [
   "dash",
   "plus",
@@ -144,7 +144,7 @@ function Reference(chapters, verses)
   }
 }
 
-const Type = {
+var Type = {
   Any : 0, // *
   Number_Any : 1, // 123-*
   Number : 2, // 123
