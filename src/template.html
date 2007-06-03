@@ -104,6 +104,8 @@ function show(refs)
         var cidxStr = ""+(cidx+1);
         var vindices = aref.getVerseIndices(cidx);
         html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
+        if (cidx != 0 && cidx != 8) // Don't add Basmalah for chapter 1 and 9
+          html += "<p>"+author.verses[0]+"</p>";
         for(var k=0; k < vindices.length; ++k)
         {
           var vidx = vindices[k];
@@ -135,6 +137,8 @@ function show(refs)
           var chapter = author.chapters[cidx];
           var vindices = aref.getVerseIndices(cidx);
           html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
+          if (cidx != 0 && cidx != 8) // Don't add Basmalah for chapter 1 and 9
+            html += "<p>"+author.verses[0]+"</p>";
           for(var l=0; l < vindices.length; ++l)
           {
             var vidx = vindices[l];
