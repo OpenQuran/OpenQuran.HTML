@@ -220,14 +220,14 @@ function History()
   this.array = [];
   this.getCurrent = function()
   {
-    this.array[this.current];
+    return this.array[this.current];
   }
   this.add = function(item)
   {
     // Don't add item if it matches the last item in the array.
     if (this.array.length > 1 &&
         this.array.length-1 == this.current &&
-        this.array[this.current] == item)
+        this.getCurrent() == item)
         return;
 
     this.array.push( item );
@@ -239,7 +239,7 @@ function History()
       this.current--;
     else if (this.array.length == 0)
       return "";
-    return this.array[this.current];
+    return this.getCurrent();
   }
   this.next = function()
   {
@@ -247,7 +247,7 @@ function History()
       this.current++;
     else if (this.array.length == 0)
       return "";
-    return this.array[this.current];
+    return this.getCurrent();
   }
 }
 
