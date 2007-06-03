@@ -10,6 +10,8 @@ h1 {
 }
 h1 a { text-decoration: none; color: #237;}
 h1 a:hover { color: #469; }
+h2 { cursor: pointer; }
+h2:hover { color: #309; }
 .hidden { display: none }
 #list p { margin: 0px; padding: 0px; }
 h2 { margin-left: 5px; font-size: 1em; }
@@ -132,7 +134,7 @@ function show(refs)
           var cidxStr = ""+(cidx+1);
           var chapter = author.chapters[cidx];
           var vindices = aref.getVerseIndices(cidx);
-          html += "<h2>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidde">';
+          html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="">';
           for(var l=0; l < vindices.length; ++l)
           {
             var vidx = vindices[l];
