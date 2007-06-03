@@ -256,6 +256,7 @@ function init()
   // Set onkeydown event handler on input
   var input = document.getElementById("cmd");
   input.onkeydown = function(e) {
+    if(!e) e = window.event;
     if (e.keyCode == 13)
       command(this.value);
   };
@@ -322,10 +323,6 @@ function visibilityOfChapters(value)
     divs[i].className = value;
   }
 }
-/*
-Reorderable: insert hidden span
-Chapters list: can switch between authors.
-*/
 window.onload = init;
 </script>
 </head>
