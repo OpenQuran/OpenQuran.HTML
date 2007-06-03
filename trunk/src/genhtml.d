@@ -35,9 +35,27 @@ char[] toArrayLiteral(char[][] strArray)
   return literal;
 }
 
+const char[] VERSION = "0.22";
+
+const char[] helpMain =
+`genhtml v`~VERSION~`
+Copyright (c) 2007 by Aziz Köksal
+
+Use this tool to generate an HTML file with dynamic features added by
+JavaScript.
+
+Usage:
+  genhtml <authors>
+
+Example:
+  genhtml yusufali arabic khalifa > YusufAli_Arabic_RashadKhalifa.html
+`;
 
 void main(char[][] args)
 {
+  if (args.length <= 1)
+    return writefln(helpMain);
+
   auto authors = args[1..$];
 
   char[] Quran_js = readFile("Quran.js");
