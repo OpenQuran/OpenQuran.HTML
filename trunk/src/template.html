@@ -190,7 +190,7 @@ function getNode(refs)
 function changeAuthor(select)
 {
   populateChapterList(parseInt(select.value));
-  select.width = document.getElementById("chapterList").width;
+//   select.width = document.getElementById("chapterList").width;
 }
 
 function selectChapter(select)
@@ -280,6 +280,7 @@ function init()
   populateChapterList(0);
 }
 
+/// Empties the contents of a node and returns it.
 function empty(node)
 {
   while(node.firstChild)
@@ -323,10 +324,10 @@ function visibilityOfChapters(value)
     divs[i].className = value;
   }
 }
-window.onload = init;
+
 </script>
 </head>
-<body style="margin:0;padding:0;">
+<body onload="init()" style="margin:0;padding:0;">
 <h1><a href="http://code.google.com/p/openquran/">openquran</a><br><span style="font-size: 0.4em;">Version 0.22</span></h1>
 <div style="padding:5px;">
 <div style="float:right">
