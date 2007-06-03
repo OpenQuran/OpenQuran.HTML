@@ -49,9 +49,9 @@ var g_Authors = {QuranObjects}
   Author: Aziz Köksal
   License: GPL2
 */
-function onMouseClick()
+function onHeaderClick(header)
 {
-  var divTag = this.nextSibling.nextSibling;
+  var divTag = header.nextSibling;
   if (divTag.className == "")
     divTag.className = "hidden";
   else
@@ -80,7 +80,7 @@ function getChapter(obj, index)
   return obj.verses.slice(slice[0], slice[1]);
 }
 
-function getHTML(refs)
+function show(refs)
 {
   var html = "<div>";
   var authors = getActiveAuthors();
@@ -101,7 +101,7 @@ function getHTML(refs)
         var cidx = cindices[j];
         var cidxStr = ""+(cidx+1);
         var vindices = aref.getVerseIndices(cidx);
-        html += "<h2>"+cidxStr+" "+author.titles[cidx]+'</h2><div class="hidde">';
+        html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
         for(var k=0; k < vindices.length; ++k)
         {
           var vidx = vindices[k];
@@ -112,7 +112,7 @@ function getHTML(refs)
             html += '<p class="as">'+authors[l].name+'</p><p class="v">'+ chapter[vidx] + "</p>";
           }
         }
-        html += "</h2>";
+        html += "</div>";
       }
     }
   }
@@ -132,7 +132,7 @@ function getHTML(refs)
           var cidxStr = ""+(cidx+1);
           var chapter = author.chapters[cidx];
           var vindices = aref.getVerseIndices(cidx);
-          html += "<h2>"+cidxStr+" "+author.titles[cidx]+'</h2><div class="hidde">';
+          html += "<h2>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidde">';
           for(var l=0; l < vindices.length; ++l)
           {
             var vidx = vindices[l];
@@ -145,9 +145,12 @@ function getHTML(refs)
     }
   }
   html += "</div>";
-  return html;
+
+  var text = document.getElementById("text");
+  text.innerHTML = html;
 }
 
+/*
 function getNode(refs)
 {
   var html = document.createElement("div");
@@ -190,6 +193,7 @@ function getNode(refs)
   }
   return html;
 }
+*/
 
 function changeAuthor(select)
 {
@@ -217,6 +221,7 @@ function command(cmdline)
   {
 //     tokens = parser.getTokens();
     refs = parser.parseReferences();
+    show(refs);
   }
   catch (e)
   {
@@ -236,10 +241,6 @@ function command(cmdline)
   }
 //   alert(tokens);
 //   alert(display(refs));
-  var text = document.getElementById("text");
-//   text.innerHTML = "";
-//   text.appendChild(getNode(refs));
-  text.innerHTML = getHTML(refs);
 }
 
 function removeErrorMsg()
@@ -280,7 +281,7 @@ function init()
     list.appendChild(option);
     div.innerHTML += '<p><input type="checkbox" id="author'+i+'">' + g_Authors[i].name + "</input></p>";
   }
-
+  list.style.width = "auto"; // Required by IE
   populateChapterList(0);
 }
 
@@ -301,10 +302,12 @@ function populateChapterList(authorId)
   for (var i=0; i < titles.length; ++i)
   {
     option = document.createElement("option");
-    option.appendChild(document.createTextNode((i+1)+" "+titles[i]));
+    option.appendChild(document.createTextNode((i+1)+". "+titles[i]));
     option.value = i+1;
     list.appendChild(option);
   }
+
+  list.style.width = "auto"; // Required by IE
 }
 
 function visibilityOfChapters(value)
@@ -333,11 +336,10 @@ function visibilityOfChapters(value)
 </head>
 <body onload="init()" style="margin:0;padding:0;">
 <h1><a href="http://code.google.com/p/openquran/">openquran</a><br><span style="font-size: 0.4em;">Version 0.22</span></h1>
-<div style="padding:5px;">
+<div style="padding:0 5px 5px 5px;">
 <div style="float:right">
-<select id="chapterListFromAuthor" onchange="changeAuthor(this)"></select><br/>
-<select id="chapterList" multiple="true" size="20" onchange="selectChapter(this)">
-</select>
+<p><select id="chapterListFromAuthor" onchange="changeAuthor(this)"></select></p>
+<p><select id="chapterList" multiple="true" size="20" onchange="selectChapter(this)"></select></p>
 </div>
 <p>Available authors:</p>
 <div id="list"></div>
