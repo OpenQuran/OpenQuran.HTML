@@ -82,8 +82,9 @@ void main(char[][] args)
   char[] template_html = readFile("template.html");
 
   // Expand template macros
-  template_html = replace(template_html, "{Quran.js}", readFile("Quran.js"));
-  template_html = replace(template_html, "{ReferenceParser.js}", readFile("ReferenceParser.js"));
+  template_html = replace(template_html, "{Quran.js}", Quran_js);
+
+  template_html = replace(template_html, "{ReferenceParser.js}", ReferenceParser_js);
 
   // Load Qur'an files
   Quran[] qurans;
