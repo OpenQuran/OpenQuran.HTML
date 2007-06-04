@@ -80,13 +80,25 @@ void main(char[][] args)
 
   foreach(quran; qurans)
   {
-    char[] verses = toArrayLiteral(quran.getVerses);
     char[] titles = toArrayLiteral(quran.getTitles);
-    char[] authorObject = std.string.format("new Quran(\n%s,\n%s,\n%s\n)", "'"~escapeQuotes(quran.getAuthor)~"'", titles, verses);
+    char[] authorObject = std.string.format("new Quran(\n%s,\n%s)", "'"~escapeQuotes(quran.getAuthor)~"'", titles);
+
     authorsArray ~= authorObject ~ ",\n";
   }
   authorsArray.length = authorsArray.length - 2;
   authorsArray ~= "\n]; // End of Authors array";
+
+  char[] commentedVerses;
+  foreach(quran; qurans)
+  {
+    char[][] verses = quran.getVerses;
+    char* end = verses[$-1].ptr + verses[$-1].length;
+
+    char[] allverses = verses[0].ptr[0 .. end - verses[0].ptr];
+    commentedVerses ~= "<!--"~allverses~"-->";
+  }
+
+  template_html = replace(template_html, "{Verses}", commentedVerses);
 
   writefln("%s", replace(template_html, "{QuranObjects}", authorsArray));
 }

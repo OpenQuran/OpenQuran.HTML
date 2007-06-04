@@ -43,17 +43,21 @@ var chapters_table = [
 /**
   The Qur'an class.
 */
-function Quran(authorName, titles, verses)
+function Quran(authorName, titles)
 {
   this.name = authorName;
   this.titles = titles;
-  this.verses = verses;
-  // Initialize chapters member
-  var chapters = [];
-  for (var i = 0; i < NR_OF_CHAPTERS; ++i)
+  this.verses = [];
+  this.chapters = [];
+  this.setVerses = function(verses)
   {
-    var slice = chapters_table[i];
-    chapters.push( this.verses.slice(slice[0], slice[1]) );
+    this.verses = verses;
+    var chapters = [];
+    for (var i = 0; i < NR_OF_CHAPTERS; ++i)
+    {
+      var slice = chapters_table[i];
+      chapters.push( verses.slice(slice[0], slice[1]) );
+    }
+    this.chapters = chapters;
   }
-  this.chapters = chapters;
 }

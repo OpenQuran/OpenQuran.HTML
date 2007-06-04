@@ -33,6 +33,7 @@ h2 { margin-left: 5px; font-size: 1em; }
   margin: 0 0 0 15px;
   font-size: 0.8em;
 }
+.notloaded { color: #999; }
 </style>
 <script type="text/javascript">
 {Quran.js}
@@ -307,6 +308,36 @@ function removeErrorMsg()
   errDiv.innerHTML = "";
 }
 
+function loadVerses(checkbox)
+{
+  var parent = checkbox.parentNode;
+  if (parent.className != "notloaded")
+    return; // Author is already loaded
+
+  var div = document.getElementById("verses");
+
+  // Extract index from id.
+  var index = /(\d+)$/.exec(checkbox.id)[1];
+  // Get the comment node with the verses of the requested author.
+  var verses = div.childNodes[index];
+
+  // Add loading-message
+  parent.removeAttribute("class");
+  parent.appendChild(document.createTextNode(" loading..."));
+
+  // Verses are separated by '\n'. Splitting the contents of the
+  // comment node will return an array of 6236 strings.
+  var versesArray = verses.data.split('\n');
+
+  verses.data = ""; // Once the data is loaded, we can empty the comment node.
+
+  // Finally set the authors verses.
+  g_Authors[index].setVerses( versesArray );
+
+  // Remove loading-message
+  parent.removeChild(parent.lastChild);
+}
+
 function init()
 {
 /*
@@ -344,7 +375,7 @@ function init()
     option.appendChild(document.createTextNode(g_Authors[i].name));
     option.value = i;
     list.appendChild(option);
-    div.innerHTML += '<p><input type="checkbox" id="author'+i+'">' + g_Authors[i].name + "</input></p>";
+    div.innerHTML += '<p class="notloaded"><input onchange="loadVerses(this)" type="checkbox" id="author'+i+'">' + g_Authors[i].name + "</input></p>";
   }
   list.style.width = "auto"; // Required by IE
   populateChapterList(0);
@@ -417,5 +448,6 @@ function visibilityOfChapters(value)
 <span id="collapse" class="hidden"><a href='javascript:visibilityOfChapters("hidden")'>Collapse all chapters</a></span></p>-->
 <div id="text"></div>
 </div>
+<div id="verses" style="display:none">{Verses}</div>
 </body>
 </html>
