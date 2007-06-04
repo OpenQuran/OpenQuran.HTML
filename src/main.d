@@ -338,6 +338,7 @@ const char[] VERSION = "0.22";
 
 const char[] usageShow = "quran show <references> <authors> [options]";
 const char[] usageSearch = "quran search <query> <authors> [options]";
+const char[] usageToHTML = "quran tohtml <authors>";
 
 const char[] helpMain =
 `openquran v`~VERSION~`
@@ -346,8 +347,9 @@ Copyright (c) 2007 by Aziz Köksal
 Usage:
   `~usageShow~`
   `~usageSearch~`
+  `~usageToHTML~`
 
-Type 'quran help <sub-command>' for more help on a particular sub-command.
+Type 'quran help <subcommand>' for more help on a particular subcommand.
 `;
 
 const char[] helpShow =
@@ -406,6 +408,17 @@ Examples:
   quran search Allah yusufali -p -r "42-93"
 `;
 
+const char[] helpToHTML =
+`Use this command to generate an HTML file with dynamic features added by
+JavaScript.
+
+Usage:
+  `~usageToHTML~`
+
+Example:
+  genhtml yusufali arabic khalifa > YusufAli_Arabic_RashadKhalifa.html
+`;
+
 void printHelp(char[] about)
 {
   char[] help = helpMain;
@@ -413,6 +426,7 @@ void printHelp(char[] about)
   {
     case "show":   help = helpShow;   break;
     case "search": help = helpSearch; break;
+    case "tohtml": help = helpToHTML; break;
     default:
   }
   writefln(help);
@@ -425,10 +439,11 @@ void printUsage(char[] about)
   {
     case "show":   usage = usageShow;   break;
     case "search": usage = usageSearch; break;
+    case "tohtml": usage = usageToHTML; break;
     default:
       assert(0, "Unhandled switch case in printUsage().");
   }
-  writefln("Usage:  \n  ", usage);
+  fwritefln(stderr, "Usage:  \n  ", usage);
 }
 
 version(linux)
@@ -451,6 +466,77 @@ version(linux)
     errno = olderrno;
     return result == 0;
   }
+}
+
+char[] readFile(char[] name)
+{
+  if (!std.file.exists("Quran.js"))
+    throw new Exception("Error: the file \"" ~ name ~ "\" doesn't exist.");
+
+  return cast(char[]) std.file.read(name);
+}
+
+char[] escapeQuotes(char[] str)
+{
+  return replace(str, "'", r"\'");
+}
+
+char[] toArrayLiteral(char[][] strArray)
+{
+  // Construct array literal
+  char[] literal = "[\n";
+  foreach(str; strArray)
+    literal ~= "'" ~ escapeQuotes(str) ~ "',\n"; // escape single quotes
+  literal.length = literal.length - 2; // Remove last ",\n"
+  literal ~= "\n]";
+  return literal;
+}
+
+void toHTML(char[][] authors)
+{
+  char[] Quran_js = readFile("Quran.js");
+  char[] ReferenceParser_js = readFile("ReferenceParser.js");
+  char[] template_html = readFile("template.html");
+
+  // Expand template macros
+  template_html = replace(template_html, "{Quran.js}", Quran_js);
+
+  template_html = replace(template_html, "{ReferenceParser.js}", ReferenceParser_js);
+
+  // Load Qur'an files
+  Quran[] qurans;
+  foreach(author; authors)
+    try
+      qurans ~= new Quran(author);
+    catch(Exception e)
+      writefln(e);
+
+  // Construct javascript array of author objects
+  char[] authorsArray = "[\n";
+
+  foreach(quran; qurans)
+  {
+    char[] titles = toArrayLiteral(quran.getTitles);
+    char[] authorObject = std.string.format("new Quran(\n%s,\n%s)", "'"~escapeQuotes(quran.getAuthor)~"'", titles);
+
+    authorsArray ~= authorObject ~ ",\n";
+  }
+  authorsArray.length = authorsArray.length - 2;
+  authorsArray ~= "\n]; // End of Authors array";
+
+  char[] commentedVerses;
+  foreach(quran; qurans)
+  {
+    char[][] verses = quran.getVerses;
+    char* end = verses[$-1].ptr + verses[$-1].length;
+
+    char[] allverses = verses[0].ptr[0 .. end - verses[0].ptr];
+    commentedVerses ~= "<!--"~allverses~"-->";
+  }
+
+  template_html = replace(template_html, "{Verses}", commentedVerses);
+
+  writefln("%s", replace(template_html, "{QuranObjects}", authorsArray));
 }
 
 void main(char[][] args)
@@ -585,6 +671,14 @@ void main(char[][] args)
         writefln(e);
 
       return;
+    case "tohtml":
+      if (args.length < 3)
+      {
+        errorMsg = "no authors specified.";
+        goto Lerr;
+      }
+      toHTML(args[2..$]);
+      return;
     case "help":
       if (args.length > 2)
         return printHelp(args[2]);
@@ -595,7 +689,7 @@ void main(char[][] args)
 
   return;
 Lerr:
-  printUsage(usageMsg);
-  writefln("Error: ", errorMsg);
+  printUsage(args[1]);
+  fwritefln(stderr, "Error: ", errorMsg);
   return -1;
 }
