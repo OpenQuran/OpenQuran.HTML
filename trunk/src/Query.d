@@ -157,12 +157,12 @@ class RegExpQuery : Query
   int find(char[] text, ref int[2][] matchIndices)
   {
     bool match;
-    if (rx.test(text)) {
+    if (rx.test(text))
+    {
       match = true;
-      goto L;
-      while (rx.test())
-      L:
+      do
         matchIndices ~= [rx.pmatch[0].rm_so, rx.pmatch[0].rm_eo];
+      while (rx.test())
     }
 
     return match;
