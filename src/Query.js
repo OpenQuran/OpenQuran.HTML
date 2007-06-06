@@ -74,7 +74,6 @@ function SimpleQuery(str)
 */
 function RegExpQuery(query, flags)
 {
-  alert(query);
   this.rx = new RegExp(query, flags + "g");
 
   this.find2 = function(text, matchIndices)
