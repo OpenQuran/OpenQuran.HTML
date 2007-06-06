@@ -3,6 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>The Qur'an</title>
 <style type="text/css">
+* { font-family: Verdana; }
 h1 {
   padding: 5px;
   background-color: #CCDDEE;
@@ -15,7 +16,15 @@ h2:hover { color: #309; }
 .hidden { display: none }
 #list p { margin: 0px; padding: 0px; }
 h2 { margin-left: 5px; font-size: 1em; }
+/* Highlighted matches */
+#text em {
+  font-style: normal;
+  background-color: #FF6;
+  border-bottom: 1px solid #DD5;
+}
+/* Verse */
 .v { margin: 5px 30px;}
+/* References */
 .r {
   font-family: Arial;
   margin: 0 0 0 15px;
@@ -36,10 +45,13 @@ h2 { margin-left: 5px; font-size: 1em; }
 .notloaded { color: #999; }
 </style>
 <script type="text/javascript">
-{Quran.js}
+{%Quran.js%}
 </script>
 <script type="text/javascript">
-{ReferenceParser.js}
+{%Query.js%}
+</script>
+<script type="text/javascript">
+{%ReferenceParser.js%}
 </script>
 <script type="text/javascript">
 // var g_Authors = [
@@ -47,7 +59,7 @@ h2 { margin-left: 5px; font-size: 1em; }
 //   {name:"Rashad Khalifa"},
 //   {name:"Edip Yüksel"}
 // ];
-var g_Authors = {QuranObjects}
+var g_Authors = {%QuranObjects%}
 /**
   Author: Aziz Köksal
   License: GPL2
@@ -77,24 +89,22 @@ function getActiveAuthors()
   return authors;
 }
 
-function getChapter(obj, index)
-{
-  var slice = chapters_table[index];
-  return obj.verses.slice(slice[0], slice[1]);
-}
-
-function show(refs)
+function show(refsStr)
 {
   var html = "<div>";
   var authors = getActiveAuthors();
+  var refs = parseReferences(refsStr);
   if (authors.length == 0 || !(refs instanceof Array) || refs.length == 0)
-    return "";
+    return;
 
   var interleave = document.getElementById("interleave");
-  var fromAuthor = document.getElementById("chapterListFromAuthor");
-  var author = g_Authors[parseInt(fromAuthor.value)];
+
   if (interleave.checked && authors.length > 1)
   {
+    // We take the chapter titles and basmalah from the author
+    // selected in the chapterListFromAuthor list.
+    var fromAuthor = document.getElementById("chapterListFromAuthor");
+    var author = g_Authors[parseInt(fromAuthor.value)];
     for(var i=0; i < refs.length; ++i)
     {
       var aref = refs[i];
@@ -113,8 +123,7 @@ function show(refs)
           html += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>";
           for(var l=0; l < authors.length; ++l)
           {
-            var chapter = authors[l].chapters[cidx];
-            html += '<p class="as">'+authors[l].name+'</p><p class="v">'+ chapter[vidx] + "</p>";
+            html += '<p class="as">'+authors[l].name+'</p><p class="v">'+ authors[l].chapters[cidx][vidx] + "</p>";
           }
         }
         html += "</div>";
@@ -151,6 +160,70 @@ function show(refs)
       }
     }
   }
+  html += "</div>";
+
+  var text = document.getElementById("text");
+  text.innerHTML = html;
+
+  // Show chapters expanded if html is not too long.
+  if (html.length < 100000)
+  {
+    var divs = text.getElementsByTagName("div");
+    for(var i=0; i < divs.length; ++i)
+    {
+      divs[i].className = "";
+    }
+  }
+}
+
+function search(query)
+{
+  var queries = parseQuery(query);
+
+  var html = "<div>";
+  var authors = getActiveAuthors();
+  var refs = parseReferences(document.getElementById("refs").value);
+
+  if (authors.length == 0 || !(refs instanceof Array) || refs.length == 0)
+    return;
+
+  var predicate = document.getElementById("matchany").checked ? findAny2 : findAll2;
+
+  for(var i=0; i < authors.length; ++i)
+  {
+    var author = authors[i];
+    html += '<p class="author">'+author.name+":</p>";
+    for(var j=0; j < refs.length; ++j)
+    {
+      var aref = refs[j];
+      var cindices = aref.getChapterIndices();
+      for(var k=0; k < cindices.length; ++k)
+      {
+        var cidx = cindices[k];
+        var cidxStr = ""+(cidx+1);
+        var chapter = author.chapters[cidx];
+        var vindices = aref.getVerseIndices(cidx);
+        var htmlfound = "";
+        for(var l=0; l < vindices.length; ++l)
+        {
+          var vidx = vindices[l];
+          var matchIndices = [];
+          if (predicate(queries, chapter[vidx], matchIndices))
+          {
+            htmlfound += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>" +
+                         '<p class="v">'+ highlightMatches(chapter[vidx], matchIndices) + "</p>";
+          }
+        }
+        if (htmlfound.length)
+        {
+          html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
+          html += htmlfound;
+          html += "</div>";
+        }
+      }
+    }
+  }
+
   html += "</div>";
 
   var text = document.getElementById("text");
@@ -252,8 +325,6 @@ function History()
   }
 }
 
-var g_RefsHistory = new History();
-
 function changeAuthor(select)
 {
   populateChapterList(parseInt(select.value));
@@ -262,44 +333,36 @@ function changeAuthor(select)
 
 function selectChapter(select)
 {
-  command(select.value);
+  show(select.value);
 }
 
-function callCommand()
+function parseReferences(str)
 {
-  var input = document.getElementById("cmd");
-  command(input.value);
-}
-
-function command(cmdline)
-{
-  var parser = new ReferenceListParser(cmdline);
+  var parser = new ReferenceListParser(str);
 //   var tokens;
-  var refs;
+  var refs = null;
   try
   {
 //     tokens = parser.getTokens();
     refs = parser.parseReferences();
-    show(refs);
   }
   catch (e)
   {
     if (!(e instanceof ParseError))
       throw e;
     var errorMsg = "";
-    if (e.pos == cmdline.length)
-      errorMsg = cmdline + '<u> </u>';
+    if (e.pos == str.length)
+      errorMsg = str + '<u> </u>';
     else
-      errorMsg = cmdline.slice(0, e.pos) + "<u>" + cmdline[e.pos] + "</u>" + cmdline.slice(e.pos+1,cmdline.length);
+      errorMsg = str.slice(0, e.pos) + "<u>" + str[e.pos] + "</u>" + str.slice(e.pos+1);
     errorMsg = "<pre>"+errorMsg+"</pre>"+"Error in reference list: " + e.msg;
 
     var errDiv = document.getElementById("error");
     errDiv.innerHTML = errorMsg;
     setTimeout("removeErrorMsg()", 6000);
-    return;
   }
 //   alert(tokens);
-//   alert(display(refs));
+  return refs;
 }
 
 function removeErrorMsg()
@@ -347,21 +410,38 @@ function init()
     chapters[i].onclick = onMouseClick;
   }
 */
-  // Set onkeydown event handler on input
-  var input = document.getElementById("cmd");
+  // Set onkeydown event handler on references input.
+  var input = document.getElementById("refs");
+  input.history = new History();
   input.onkeydown = function(e) {
     if(!e) e = window.event;
     if (e.keyCode == 13)
     {
-      command(this.value);
-      g_RefsHistory.add(this.value);
+alert("show");
+      show(this.value);
+      this.history.add(this.value);
     }
     else if(e.keyCode == 38)
-      this.value = g_RefsHistory.prev();
+      this.value = this.history.prev();
     else if(e.keyCode == 40)
-      this.value = g_RefsHistory.next();
+      this.value = this.history.next();
   };
+  // Set onkeydown event handler on references input.
+  input = document.getElementById("search");
+  input.history = new History();
+  input.onkeydown = function(e) {
+    if(!e) e = window.event;
 
+    if (e.keyCode == 13)
+    {
+      search(this.value);
+      this.history.add(this.value);
+    }
+    else if(e.keyCode == 38)
+      this.value = this.history.prev();
+    else if(e.keyCode == 40)
+      this.value = this.history.next();
+  };
   // Set authors list
   var div = document.getElementById("list");
   var list = document.getElementById("chapterListFromAuthor");
@@ -439,8 +519,17 @@ function visibilityOfChapters(value)
 </div>
 <p>Available authors:</p>
 <div id="list"></div>
-<p>References: <input type="text" id="cmd" /> <button onclick="callCommand()">Show</button><br/>
-<input type="checkbox" id="interleave">interleave verses</input></p>
+<table>
+<tr><td>
+References: <input type="text" id="refs" /> <button onclick="show(document.getElementById('refs').value)">Show</button><br/>
+<input type="checkbox" id="interleave">interleave verses</input><br/>
+</td>
+<td>
+<input onkeypress="if(event.keyCode == 13)return false;" type="text" id="search" /> <button onclick="search(document.getElementById('search').value)">Search</button><br/>
+<input type="checkbox" id="matchany">match any</input>
+<input type="checkbox" id="highlight">highlight matches</input>
+</td></tr>
+</table>
 <div id="error" onclick="removeErrorMsg()"></div>
 <!--
 <p>Click on a chapter header to expand.<br>
@@ -448,6 +537,6 @@ function visibilityOfChapters(value)
 <span id="collapse" class="hidden"><a href='javascript:visibilityOfChapters("hidden")'>Collapse all chapters</a></span></p>-->
 <div id="text"></div>
 </div>
-<div id="verses" style="display:none">{Verses}</div>
+<div id="verses" style="display:none">{%Verses%}</div>
 </body>
 </html>
