@@ -410,47 +410,38 @@ function init()
     chapters[i].onclick = onMouseClick;
   }
 */
-  // Set onkeydown event handler on references input.
+  // onkeydown event handler for text inputs.
+  function onKeyDown(e)
+  {
+    if(!e) e = window.event;
+    if (e.keyCode == 13)
+    {
+      if (this.id == "refs")
+        show(this.value);
+      else
+        search(this.value);
+      this.history.add(this.value);
+    }
+    else if(e.keyCode == 38)
+      this.value = this.history.prev();
+    else if(e.keyCode == 40)
+      this.value = this.history.next();
+  }
+  // Set event handler and new History instance for references input.
   var input = document.getElementById("refs");
   input.history = new History();
-  input.onkeydown = function(e) {
-    if(!e) e = window.event;
-    if (e.keyCode == 13)
-    {
-alert("show");
-      show(this.value);
-      this.history.add(this.value);
-    }
-    else if(e.keyCode == 38)
-      this.value = this.history.prev();
-    else if(e.keyCode == 40)
-      this.value = this.history.next();
-  };
-  // Set onkeydown event handler on references input.
+  input.onkeydown = onKeyDown;
+  // Ditto for search input.
   input = document.getElementById("search");
   input.history = new History();
-  input.onkeydown = function(e) {
-    if(!e) e = window.event;
+  input.onkeydown = onKeyDown;
 
-    if (e.keyCode == 13)
-    {
-      search(this.value);
-      this.history.add(this.value);
-    }
-    else if(e.keyCode == 38)
-      this.value = this.history.prev();
-    else if(e.keyCode == 40)
-      this.value = this.history.next();
-  };
   // Set authors list
   var div = document.getElementById("list");
   var list = document.getElementById("chapterListFromAuthor");
   var option;
   for (var i=0; i < g_Authors.length; ++i)
   {
-//     var p = document.createElement("p");
-//     p.appendChild(document.createTextNode(g_Authors[i].name));
-//     div.appendChild(p);
     option = document.createElement("option");
     option.appendChild(document.createTextNode(g_Authors[i].name));
     option.value = i;
