@@ -112,6 +112,7 @@ function parseQuery(q)
 {
   var queries = [];
 
+  var end = 0;
   for (var i=0; i < q.length; ++i)
   {
     var c = q.charAt(i);
@@ -119,12 +120,10 @@ function parseQuery(q)
     if (c == '/')
     {
       ++i;
-      var end = i;
-      for (; end < q.length && q.charAt(end) != '/'; ++end)
-      {}
-      if (end == q.length || q.charAt(end) != '/')
+      end = q.slice(i).indexOf('/');
+      if (end == -1)
         throw new Error("Terminating slash of regular expression not found.\n");
-
+      end += i; // add i, because we sliced the string above
       var flags = "";
       if (end + 1 < q.length)
         if (q.charAt(end + 1) == 'i')
@@ -132,9 +131,19 @@ function parseQuery(q)
       queries.push( new RegExpQuery(q.slice(i, end), flags) );
       i = end + flags.length;
     }
+    else if (c == '"')
+    {
+      ++i;
+      end = q.slice(i).indexOf('"');
+      if (end == -1)
+        throw new Error("Terminating double quote not found.");
+      end += i;
+      queries.push( new SimpleQuery(q.slice(i, end)) );
+      i = end;
+    }
     else if (!isspace(c))
     {
-      var end = i + 1;
+      end = i + 1;
       for (; end < q.length; ++end)
       {
         c = q.charAt(end);
