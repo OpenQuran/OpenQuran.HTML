@@ -189,9 +189,8 @@ function highlightMatches(text, m)
 
   function max(a, b){ return a<b?b:a; }
 
-  var m2 = [];
-
   // Merge overlapping and adjacent match tuples.
+  var m2 = [];
   var i = 1;
   var so = m[0][0], eo = m[0][1];
   for (; i < m.length; ++i)

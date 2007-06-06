@@ -336,7 +336,7 @@ char[] highlightMatches(char[] text, int[2][] matchIndices)
   assert(m.length != 0);
   // Sort the match tuples
   m = quicksort(m);
-  // Merge overlapping slices.
+  // Merge overlapping and adjacent match tuples.
   int[2][] tmp;
   int i = 1;
   int max(int a, int b){return a<b?b:a;}
