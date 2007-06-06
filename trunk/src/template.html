@@ -93,8 +93,8 @@ function show(refsStr)
 {
   var html = "<div>";
   var authors = getActiveAuthors();
-  var refs = parseReferences(refsStr);
-  if (authors.length == 0 || !(refs instanceof Array) || refs.length == 0)
+  var refs = parseReferencesHE(refsStr);
+  if (authors.length == 0 || refs.length == 0)
     return;
 
   var interleave = document.getElementById("interleave");
@@ -178,23 +178,28 @@ function show(refsStr)
 
 function search(query)
 {
-  var queries = parseQuery(query);
+  var queries = parseQueryHE(query);
+  if (queries.length == 0)
+    return;
 
-  var html = "<div>";
   var authors = getActiveAuthors();
+  if (authors.length == 0)
+    return;
 
   var refsString;
   if (document.getElementById("restrict").checked)
     refsString = document.getElementById("refs").value;
   else
     refsString = "1-114"; // Search all chapters
-  var refs = parseReferences(refsString);
 
-  if (authors.length == 0 || !(refs instanceof Array) || refs.length == 0)
+  var refs = parseReferences(refsString);
+  if (refs.length == 0)
     return;
 
   var predicate = document.getElementById("matchany").checked ? findAny2 : findAll2;
+  var highlight = document.getElementById("highlight").checked ? highlightMatches : function(text,m){return text;};
 
+  var html = "<div>";
   for(var i=0; i < authors.length; ++i)
   {
     var author = authors[i];
@@ -218,7 +223,7 @@ function search(query)
           if (predicate(queries, chapter[vidx], matchIndices))
           {
             htmlfound += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>" +
-                         '<p class="v">'+ highlightMatches(chapter[vidx], matchIndices) + "</p>";
+                         '<p class="v">'+ highlight(chapter[vidx], matchIndices) + "</p>";
             ++totalNrOfMatches;
           }
         }
@@ -347,11 +352,16 @@ function selectChapter(select)
   show(select.value);
 }
 
-function parseReferences(str)
+/**
+  Parses a reference list and returns an array of Reference objects.
+  Returns an empty array and shows an error message
+  if an exception was thrown.
+*/
+function parseReferencesHE(str)
 {
   var parser = new ReferenceListParser(str);
 //   var tokens;
-  var refs = null;
+  var refs = [];
   try
   {
 //     tokens = parser.getTokens();
@@ -374,6 +384,27 @@ function parseReferences(str)
   }
 //   alert(tokens);
   return refs;
+}
+
+/**
+  Parses a query string and returns an array of Query objects.
+  Returns an empty array and shows an error message
+  if an exception was thrown.
+*/
+function parseQueryHE(q)
+{
+  var queries = [];
+  try
+  {
+    queries = parseQuery(q);
+  }
+  catch(e)
+  {
+    var errDiv = document.getElementById("error");
+    errDiv.innerHTML = "Error in query: " + e.message;
+    setTimeout("removeErrorMsg()", 6000);
+  }
+  return queries;
 }
 
 function removeErrorMsg()
