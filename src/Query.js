@@ -115,14 +115,14 @@ function parseQuery(q)
   var queries = [];
 
   var end = 0;
-  var negate = false;
+  var negate = 0;
   for (var i=0; i < q.length; ++i)
   {
     var c = q.charAt(i);
 
     if (c == '-')
     {
-      negate = true;
+      negate = 1;
     }
     else if (c == '/')
     {
@@ -161,7 +161,7 @@ function parseQuery(q)
       i = end - 1;
     }
     else
-      negate = false;
+      negate = 0;
   }
 
   return queries;
