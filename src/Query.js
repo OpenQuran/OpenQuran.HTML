@@ -186,7 +186,7 @@ function compareFunction(a, b)
 function highlightMatches(text, m)
 {
   if (!m || !m.length)
-    return;
+    return text;
 
   // Sort the match tuples
   m.sort(compareFunction);
