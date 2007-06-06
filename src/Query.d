@@ -332,26 +332,30 @@ import Strings;
 +/
 char[] highlightMatches(char[] text, int[2][] matchIndices)
 {
-  assert(matchIndices.length != 0);
+  alias matchIndices m;
+  assert(m.length != 0);
   // Sort the match tuples
-  matchIndices = quicksort(matchIndices);
+  m = quicksort(m);
   // Merge overlapping slices.
   int[2][] tmp;
-  int i;
+  int i = 1;
   int max(int a, int b){return a<b?b:a;}
-  for (; i < (matchIndices.length -1); ++i)
+  int so = m[0][0], eo = m[0][1];
+  for (; i < m.length; ++i)
   {
-    alias matchIndices m;
-    if ((m[i][1]) >= m[i+1][0])
+    if (eo < m[i][0])
     {
-      tmp ~= [m[i][0], max(m[i][1], m[i+1][1])];
-      ++i;
+      tmp ~= [so, eo];
+      so = m[i][0];
+      eo = m[i][1];
     }
     else
-      tmp ~= m[i];
+    {
+      eo = max(eo, m[i][1]);
+    }
   }
-  if (i != matchIndices.length)
-    tmp ~= matchIndices[$-1];
+  tmp ~= [so, eo];
+
   // Iterate over the tuples and return a highlighted string
   // with bash color codes or marking characters for Windows.
   int start;
