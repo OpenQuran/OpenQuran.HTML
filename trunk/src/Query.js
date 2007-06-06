@@ -186,34 +186,38 @@ function highlightMatches(text, m)
 
   // Sort the match tuples
   m.sort(compareFunction);
-  // Merge overlapping slices.
-  var tmp = [];
-  var i = 0;
 
   function max(a, b){ return a<b?b:a; }
 
-  for (; i < (m.length -1); ++i)
+  var m2 = [];
+
+  // Merge overlapping and adjacent match tuples.
+  var i = 1;
+  var so = m[0][0], eo = m[0][1];
+  for (; i < m.length; ++i)
   {
-    if ((m[i][1]) >= m[i+1][0])
+    if (eo < m[i][0])
     {
-      tmp.push( [m[i][0], max(m[i][1], m[i+1][1])] );
-      ++i;
+      m2.push( [so, eo] );
+      so = m[i][0];
+      eo = m[i][1];
     }
     else
-      tmp.push( m[i] );
+    {
+      eo = max(eo, m[i][1]);
+    }
   }
+  m2.push( [so, eo] );
 
-  if (i != m.length)
-    tmp.push( m[m.length-1] );
   // Iterate over the tuples and return a highlighted string.
   var start;
   var hltext = "";
-  for(i = 0; i < tmp.length; ++i)
+  for(i = 0; i < m2.length; ++i)
   {
-    var offs = tmp[i];
+    var offs = m2[i];
     hltext += text.slice(start, offs[0]) + "<em>" + text.slice(offs[0], offs[1]) + "</em>";
     start = offs[1];
   }
-  hltext += text.slice(start, text.length);
+  hltext += text.slice(start);
   return hltext;
 }
