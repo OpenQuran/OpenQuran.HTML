@@ -32,8 +32,8 @@ function findAny(queries, text)
 {
   for(var i=0; i < queries.length; ++i)
     if (queries[i].find(text))
-      return true;
-  return false;
+      return 1;
+  return 0;
 }
 
 function findAny2(queries, text, matchIndices)
@@ -80,22 +80,22 @@ function RegExpQuery(query, flags, negate)
 
   this.find2 = function(text, matchIndices)
   {
-    var found = false;
+    var found = 0;
     var m;
     if (m = this.rx.exec(text))
     {
-      found = true;
+      found = 1;
       do
       {
         matchIndices.push( [m.index, this.rx.lastIndex] );
       } while (m = this.rx.exec(text));
     }
-    return found ^ negate;
+    return found ^ this.negate;
   }
 
   this.find = function(text)
   {
-    return rx.test(text) ^ negate;
+    return rx.test(text) ^ this.negate;
   }
 }
 
