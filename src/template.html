@@ -192,7 +192,8 @@ function search(query)
   for(var i=0; i < authors.length; ++i)
   {
     var author = authors[i];
-    html += '<p class="author">'+author.name+":</p>";
+    var totalNrOfMatches = 0;
+    var htmlauthor = "";
     for(var j=0; j < refs.length; ++j)
     {
       var aref = refs[j];
@@ -212,15 +213,19 @@ function search(query)
           {
             htmlfound += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>" +
                          '<p class="v">'+ highlightMatches(chapter[vidx], matchIndices) + "</p>";
+            ++totalNrOfMatches;
           }
         }
         if (htmlfound.length)
         {
-          html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
-          html += htmlfound;
-          html += "</div>";
+          htmlauthor += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">' +
+                        htmlfound + "</div>";
         }
       }
+    }
+    if (htmlauthor.length)
+    {
+      html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author">'+author.name+":</p>" + htmlauthor;
     }
   }
 
