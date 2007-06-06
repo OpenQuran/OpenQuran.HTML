@@ -182,7 +182,13 @@ function search(query)
 
   var html = "<div>";
   var authors = getActiveAuthors();
-  var refs = parseReferences(document.getElementById("refs").value);
+
+  var refsString;
+  if (document.getElementById("restrict").checked)
+    refsString = document.getElementById("refs").value;
+  else
+    refsString = "1-114"; // Search all chapters
+  var refs = parseReferences(refsString);
 
   if (authors.length == 0 || !(refs instanceof Array) || refs.length == 0)
     return;
@@ -524,6 +530,7 @@ References: <input type="text" id="refs" /> <button onclick="show(document.getEl
 <input onkeypress="if(event.keyCode == 13)return false;" type="text" id="search" /> <button onclick="search(document.getElementById('search').value)">Search</button><br/>
 <input type="checkbox" id="matchany">match any</input>
 <input type="checkbox" id="highlight">highlight matches</input>
+<input type="checkbox" id="restrict">restrict to references</input>
 </td></tr>
 </table>
 <div id="error" onclick="removeErrorMsg()"></div>
