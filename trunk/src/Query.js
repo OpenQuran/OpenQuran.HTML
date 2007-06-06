@@ -129,7 +129,7 @@ function parseQuery(q)
       ++i;
       end = q.slice(i).indexOf('/');
       if (end == -1)
-        throw new Error("Terminating slash of regular expression not found.\n");
+        throw new Error("terminating slash of regular expression not found.\n");
       end += i; // add i, because we sliced the string above
       var flags = "";
       if (end + 1 < q.length)
@@ -143,7 +143,7 @@ function parseQuery(q)
       ++i;
       end = q.slice(i).indexOf('"');
       if (end == -1)
-        throw new Error("Terminating double quote not found.");
+        throw new Error("terminating double quote not found.");
       end += i;
       queries.push( new SimpleQuery(q.slice(i, end), negate) );
       i = end;
@@ -168,21 +168,23 @@ function parseQuery(q)
 }
 
 
+/// Compare function for sorting match indices.
+function compareFunction(a, b)
+{
+  a = a[0]; b = b[0];
+  if (a < b)
+    return -1;
+  if (a > b)
+    return 1;
+  return 0;
+}
+
 /**
   Takes a list of two-pair index values, slices the text and inserts
   em-tags at those positions.
 */
 function highlightMatches(text, m)
 {
-  /// Compare function for sorting match indices.
-  function compareFunction(a, b)
-  {
-    if (a[0] < b[0])
-      return -1;
-    if (a[0] > b[0])
-      return 1;
-    return 0;
-  }
 
   // Sort the match tuples
   m.sort(compareFunction);
@@ -213,9 +215,9 @@ function highlightMatches(text, m)
   var hltext = "";
   for(i = 0; i < m2.length; ++i)
   {
-    var offs = m2[i];
-    hltext += text.slice(start, offs[0]) + "<em>" + text.slice(offs[0], offs[1]) + "</em>";
-    start = offs[1];
+    so = m2[i][0]; eo = m2[i][1];
+    hltext += text.slice(start, so) + "<em>" + text.slice(so, eo) + "</em>";
+    start = eo;
   }
   hltext += text.slice(start);
   return hltext;
