@@ -13,65 +13,7 @@ import CmdLine;
 
 version(Windows)
 {
-  import std.format;
-  import std.utf : encode;
-  static import std.stdio;
-
-  extern(Windows) void* GetStdHandle(uint);
-  extern(Windows) int WriteConsoleW(void*,void*,uint,uint*,void*);
-  extern(Windows) uint GetFileType(void*);
-  extern(Windows) int GetConsoleMode(void*,uint*);
-
-  const uint STD_OUTPUT_HANDLE = cast(uint)-11;
-  const uint FILE_TYPE_CHAR = 2;
-
-  void* stdoutHandle;
-
-  static this()
-  {
-    stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    // If this is a console use WriteConsoleW() to output text.
-    uint unused;
-    if (GetFileType(stdoutHandle) == FILE_TYPE_CHAR &&
-        GetConsoleMode(stdoutHandle, &unused) // Additional check
-       )
-    {
-      outfln = &WCW_outfln;
-      outfln = &WCW_outfln;
-    }
-  }
-
-  void function(...) outfln = &std.stdio.writefln;
-  void function(...) outf = &std.stdio.writef;
-  alias outfln writefln;
-  alias outf writef;
-
-  void writefx(TypeInfo[] arguments, void* argptr, int newline = false)
-  {
-    wchar[] data;
-    void putc(dchar c)
-    {
-      encode(data, c);
-    }
-    doFormat(&putc, arguments, argptr);
-    if (newline)
-      data ~= '\n';
-    uint written;
-    // Todo: WriteConsoleW can maximally output 64k.
-    // Though it's unusual that a line will be that long,
-    // maybe that case should be handled and the string split into 64k chunks.
-    WriteConsoleW(stdoutHandle, cast(void*)data.ptr, data.length, &written, null);
-    debug assert(written == data.length);
-
-  }
-  void WCW_outfln(...)
-  {
-    writefx(_arguments, _argptr, 1);
-  }
-  void WCW_outf(...)
-  {
-    writefx(_arguments, _argptr, 0);
-  }
+  import WinConsole;
 }
 else
 {
@@ -492,16 +434,25 @@ char[] toArrayLiteral(char[][] strArray)
   return literal;
 }
 
+char[] myreplace(char[] text, char[] from, char[] to)
+{
+  int start = find(text, from);
+  if(start == -1)
+    return text;
+  return text[0..start] ~ to ~ text[start+from.length .. $];
+}
+
 void toHTML(char[][] authors)
 {
   char[] Quran_js = readFile("Quran.js");
+  char[] Query_js = readFile("Query.js");
   char[] ReferenceParser_js = readFile("ReferenceParser.js");
   char[] template_html = readFile("template.html");
 
   // Expand template macros
-  template_html = replace(template_html, "{Quran.js}", Quran_js);
-
-  template_html = replace(template_html, "{ReferenceParser.js}", ReferenceParser_js);
+  template_html = myreplace(template_html, "{%Quran.js%}", Quran_js);
+  template_html = myreplace(template_html, "{%Query.js%}", Query_js);
+  template_html = myreplace(template_html, "{%ReferenceParser.js%}", ReferenceParser_js);
 
   // Load Qur'an files
   Quran[] qurans;
@@ -533,10 +484,10 @@ void toHTML(char[][] authors)
     char[] allverses = verses[0].ptr[0 .. end - verses[0].ptr];
     commentedVerses ~= "<!--"~allverses~"-->";
   }
+  template_html = myreplace(template_html, "{%QuranObjects%}", authorsArray);
+  template_html = myreplace(template_html, "{%Verses%}", commentedVerses);
 
-  template_html = replace(template_html, "{Verses}", commentedVerses);
-
-  writefln("%s", replace(template_html, "{QuranObjects}", authorsArray));
+  writefln("%s", template_html);
 }
 
 void main(char[][] args)
