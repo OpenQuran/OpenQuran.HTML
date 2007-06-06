@@ -192,12 +192,14 @@ function search(query)
   else
     refsString = "1-114"; // Search all chapters
 
-  var refs = parseReferences(refsString);
+  var refs = parseReferencesHE(refsString);
   if (refs.length == 0)
     return;
 
-  var predicate = document.getElementById("matchany").checked ? findAny2 : findAll2;
-  var highlight = document.getElementById("highlight").checked ? highlightMatches : function(text,m){return text;};
+  var hl = document.getElementById("highlight").checked ? 1 : 0;
+  // Select a search predicate depending on whether we have to highlight matches or not.
+  var predicate = document.getElementById("matchany").checked ? [findAny, findAny2][hl] : [findAll, findAll2][hl];
+  var highlight = hl ? highlightMatches : function(text,m){return text;};
 
   var html = "<div>";
   for(var i=0; i < authors.length; ++i)
