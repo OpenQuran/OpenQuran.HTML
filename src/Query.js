@@ -6,10 +6,10 @@
 
 function findAll(queries, text)
 {
-  var found = queries.length ? true : false;
+  var found = queries.length ? 1 : 0;
   for(var i=0; i < queries.length; ++i)
   {
-    found = queries[i].find(text) && found;
+    found &= queries[i].find(text);
     if (!found)
       break;
   }
@@ -18,10 +18,10 @@ function findAll(queries, text)
 
 function findAll2(queries, text, matchIndices)
 {
-  var found = queries.length ? true : false;
+  var found = queries.length ? 1 : 0;
   for(var i=0; i < queries.length; ++i)
   {
-    found = found && queries[i].find2(text, matchIndices);
+    found &= queries[i].find2(text, matchIndices);
     if (!found)
       break;
   }
@@ -38,18 +38,19 @@ function findAny(queries, text)
 
 function findAny2(queries, text, matchIndices)
 {
-  var found = false;
+  var found = 0;
   for(var i=0; i < queries.length; ++i)
-    found = found || queries[i].find2(text, matchIndices);
+    found |= queries[i].find2(text, matchIndices);
   return found;
 }
 
 /**
-  A simple query looks for one word in a text using ifind().
+  A simple query looks for str in a text using String.indexOf().
 */
-function SimpleQuery(str)
+function SimpleQuery(str, negate)
 {
   this.query = str;
+  this.negate = negate;
 
   this.find2 = function(text, matchIndices)
   {
@@ -60,21 +61,22 @@ function SimpleQuery(str)
       matchIndices.push( [total, total + this.query.length] );
       total += this.query.length;
     }
-    return total != 0;
+    return (total != 0) ^ this.negate;
   }
 
   this.find = function(text)
   {
-    return text.indexOf(this.query) != -1;
+    return (text.indexOf(this.query) != -1) ^ this.negate;
   }
 }
 
 /**
   A regular expression query.
 */
-function RegExpQuery(query, flags)
+function RegExpQuery(query, flags, negate)
 {
   this.rx = new RegExp(query, flags + "g");
+  this.negate = negate;
 
   this.find2 = function(text, matchIndices)
   {
@@ -88,12 +90,12 @@ function RegExpQuery(query, flags)
         matchIndices.push( [m.index, this.rx.lastIndex] );
       } while (m = this.rx.exec(text));
     }
-    return found;
+    return found ^ negate;
   }
 
   this.find = function(text)
   {
-    return rx.test(text);
+    return rx.test(text) ^ negate;
   }
 }
 
@@ -113,11 +115,16 @@ function parseQuery(q)
   var queries = [];
 
   var end = 0;
+  var negate = false;
   for (var i=0; i < q.length; ++i)
   {
     var c = q.charAt(i);
 
-    if (c == '/')
+    if (c == '-')
+    {
+      negate = true;
+    }
+    else if (c == '/')
     {
       ++i;
       end = q.slice(i).indexOf('/');
@@ -128,7 +135,7 @@ function parseQuery(q)
       if (end + 1 < q.length)
         if (q.charAt(end + 1) == 'i')
           flags = "i";
-      queries.push( new RegExpQuery(q.slice(i, end), flags) );
+      queries.push( new RegExpQuery(q.slice(i, end), flags, negate) );
       i = end + flags.length;
     }
     else if (c == '"')
@@ -138,7 +145,7 @@ function parseQuery(q)
       if (end == -1)
         throw new Error("Terminating double quote not found.");
       end += i;
-      queries.push( new SimpleQuery(q.slice(i, end)) );
+      queries.push( new SimpleQuery(q.slice(i, end), negate) );
       i = end;
     }
     else if (!isspace(c))
@@ -150,9 +157,11 @@ function parseQuery(q)
         if (isspace(c))
           break;
       }
-      queries.push( new SimpleQuery(q.slice(i, end)) );
+      queries.push( new SimpleQuery(q.slice(i, end), negate) );
       i = end - 1;
     }
+    else
+      negate = false;
   }
 
   return queries;
