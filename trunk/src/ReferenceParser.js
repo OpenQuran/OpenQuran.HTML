@@ -395,7 +395,7 @@ function ReferenceListParser(str)
         {
           if (this.nextToken() != TOK.Number)
             error();
-          right = left + token.number;
+          right = left + this.token.number;
           type = Type.Number_Number;
         }
         else
