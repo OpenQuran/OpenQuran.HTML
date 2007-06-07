@@ -94,10 +94,11 @@ function showBBCode()
   var text = document.getElementById("text");
 }
 
-function setText(html)
+function setText(html, textProperties)
 {
   var text = document.getElementById("text");
   text.innerHTML = html;
+  text.textProperties = textProperties;
 
   // Show chapters expanded if html is not too long.
   if (html.length < 100000)
@@ -184,7 +185,7 @@ function show(refsStr)
   }
   html += "</div>";
 
-  setText(html);
+  setText(html, {type:"search", interleaved: interleave});
 }
 
 function search(query)
@@ -252,7 +253,7 @@ function search(query)
 
   html += "</div>";
 
-  setText(html);
+  setText(html, {type:"search", highlighted: hl});
 }
 
 /*
