@@ -42,6 +42,10 @@ h2 { margin-left: 5px; font-size: 1em; }
   margin: 0 0 0 15px;
   font-size: 0.8em;
 }
+.basmalah {
+  font-style: italic;
+  margin-left: 15px;
+}
 .notloaded { color: #999; }
 </style>
 <script type="text/javascript">
@@ -64,6 +68,11 @@ var g_Authors = {%QuranObjects%}
   Author: Aziz Köksal
   License: GPL2
 */
+function debug(msg)
+{
+  document.getElementById('debug').appendChild(document.createTextNode(msg+"\n"));
+}
+
 function onHeaderClick(header)
 {
   var divTag = header.nextSibling;
@@ -92,6 +101,88 @@ function getActiveAuthors()
 function showBBCode()
 {
   var text = document.getElementById("text");
+  var props = text.textProperties;
+  var divBBC = text.firstChild; //document.getElementById("BBCode");
+
+  var code = "";
+  // Start with node past divBBC.
+  var node = divBBC.nextSibling;
+  function genCode()
+  {
+    var skipFound = props.type == "search" ? true : false;
+    do
+    {
+      if (skipFound)
+        node = node.nextSibling; // Skip "Found..."
+      code += "[b]" + getText(node) + "[/b]\n";
+      node = node.nextSibling;
+      do
+      {
+        code += "[size=18]" + getText(node) + "[/size]\n";
+        var div = node.nextSibling;
+        // traverse children of div-tag
+        node = div.firstChild;
+        if (node.className != "r")
+        {
+          code += "[i]" + getText(node) + "[/i]\n";
+          node = node.nextSibling;
+        }
+        do
+        {
+          code += "[size=13]" + getText(node) + "[/size]\n";
+          node = node.nextSibling;
+          code += getText(node) + "\n";
+        } while (node = node.nextSibling);
+        node = div; // leave div-tag
+      } while ((node = node.nextSibling) && node.tagName == "H2");
+    } while (node);
+  }
+
+  if (props.type == "show" && props.interleaved)
+  {
+    do
+    {
+      code += "[size=18]" + getText(node) + "[/size]\n";
+      var div = node.nextSibling;
+      // traverse children of div-tag
+      node = div.firstChild;
+      if (node.className != "r")
+      {
+        code += "[i]" + getText(node) + "[/i]\n";
+        node = node.nextSibling;
+      }
+      do
+      {
+        code += "[size=13]" + getText(node) + "[/size]\n";
+        node = node.nextSibling;
+        do
+        {
+          code += "[size=13]" + getText(node) + ":[/size]\n";
+          node = node.nextSibling;
+          code += getText(node) + "\n";
+          node = node.nextSibling
+        } while (node && node.className == "as");
+      } while (node);
+      node = div; // leave div-tag
+    } while (node = node.nextSibling);
+  }
+  else
+  {
+    genCode();
+  }
+
+  divBBC.innerHTML = '<a href="javascript:hideBBCode()">Hide BBCode</a><br>';
+
+  var textarea = divBBC.appendChild(document.createElement("textarea"));
+  textarea.rows = 20;
+  textarea.cols = 40;
+  textarea.value = code;
+}
+
+function hideBBCode()
+{
+  var div = document.getElementById("BBCode")
+  div.innerHTML = '<a href="javascript:showBBCode()">Show BBCode</a>';
 }
 
 function setText(html, textProperties)
@@ -99,6 +190,10 @@ function setText(html, textProperties)
   var text = document.getElementById("text");
   text.innerHTML = html;
   text.textProperties = textProperties;
+
+  var p = text.insertBefore(document.createElement("p"), text.firstChild);
+  p.id = "BBCode";
+  hideBBCode();
 
   // Show chapters expanded if html is not too long.
   if (html.length < 100000)
@@ -118,7 +213,7 @@ function show(refsStr)
   if (authors.length == 0 || refs.length == 0)
     return;
 
-  var html = "<div>";
+  var html = "";
 
   var interleave = document.getElementById("interleave");
 
@@ -139,7 +234,7 @@ function show(refsStr)
         var vindices = aref.getVerseIndices(cidx);
         html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
         if (cidx != 0 && cidx != 8) // Don't add Basmalah for chapter 1 and 9
-          html += "<p>"+author.verses[0]+"</p>";
+          html += '<p class="basmalah">'+author.verses[0]+"</p>";
         for(var k=0; k < vindices.length; ++k)
         {
           var vidx = vindices[k];
@@ -171,7 +266,7 @@ function show(refsStr)
           var vindices = aref.getVerseIndices(cidx);
           html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
           if (cidx != 0 && cidx != 8) // Don't add Basmalah for chapter 1 and 9
-            html += "<p>"+author.verses[0]+"</p>";
+            html += '<p class="basmalah">'+author.verses[0]+"</p>";
           for(var l=0; l < vindices.length; ++l)
           {
             var vidx = vindices[l];
@@ -183,9 +278,8 @@ function show(refsStr)
       }
     }
   }
-  html += "</div>";
 
-  setText(html, {type:"search", interleaved: interleave});
+  setText(html, {type:"show", interleaved: interleave.checked});
 }
 
 function search(query)
@@ -213,7 +307,7 @@ function search(query)
   var predicate = document.getElementById("matchany").checked ? [findAny, findAny2][hl] : [findAll, findAll2][hl];
   var highlight = hl ? highlightMatches : function(text,m){return text;};
 
-  var html = "<div>";
+  var html = "";
   for(var i=0; i < authors.length; ++i)
   {
     var author = authors[i];
@@ -250,8 +344,6 @@ function search(query)
     }
     html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author">'+author.name+":</p>" + htmlauthor;
   }
-
-  html += "</div>";
 
   setText(html, {type:"search", highlighted: hl});
 }
@@ -443,15 +535,24 @@ function loadVerses(checkbox)
   parent.removeChild(parent.lastChild);
 }
 
+function getInnerText(node)
+{
+  return node.innerText;
+}
+
+function getTextContent(node)
+{
+  return node.textContent;
+}
+
+// A delegate to getInnerText or getTextContent.
+var getText = getInnerText;
+
 function init()
 {
-/*
-  var chapters = document.getElementsByTagName("h2");
-  for (var i=0; i < chapters.length; i++)
-  {
-    chapters[i].onclick = onMouseClick;
-  }
-*/
+  if (document.body.textContent)
+    getText = getTextContent;
+
   // onkeydown event handler for text inputs.
   function onKeyDown(e)
   {
@@ -570,6 +671,8 @@ References: <input type="text" id="refs" /> <button onclick="show(document.getEl
 <span id="expand"><a href='javascript:visibilityOfChapters("")'>Expand all chapters</a> (don't click on slow computers)</span>
 <span id="collapse" class="hidden"><a href='javascript:visibilityOfChapters("hidden")'>Collapse all chapters</a></span></p>-->
 <div id="help" style="display:none;">
+</div>
+<div id="debug">
 </div>
 <div id="text"></div>
 </div>
