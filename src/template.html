@@ -236,10 +236,7 @@ function search(query)
         }
       }
     }
-//     if (htmlauthor.length)
-//     {
-      html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author">'+author.name+":</p>" + htmlauthor;
-//     }
+    html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author">'+author.name+":</p>" + htmlauthor;
   }
 
   html += "</div>";
@@ -571,6 +568,8 @@ References: <input type="text" id="refs" /> <button onclick="show(document.getEl
 <p>Click on a chapter header to expand.<br>
 <span id="expand"><a href='javascript:visibilityOfChapters("")'>Expand all chapters</a> (don't click on slow computers)</span>
 <span id="collapse" class="hidden"><a href='javascript:visibilityOfChapters("hidden")'>Collapse all chapters</a></span></p>-->
+<div id="help" style="display:none;">
+</div>
 <div id="text"></div>
 </div>
 <div id="verses" style="display:none">{%Verses%}</div>

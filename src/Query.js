@@ -95,7 +95,7 @@ function RegExpQuery(query, flags, negate)
 
   this.find = function(text)
   {
-    return rx.test(text) ^ this.negate;
+    return this.rx.test(text) ^ this.negate;
   }
 }
 
