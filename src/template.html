@@ -89,13 +89,35 @@ function getActiveAuthors()
   return authors;
 }
 
+function showBBCode()
+{
+  var text = document.getElementById("text");
+}
+
+function setText(html)
+{
+  var text = document.getElementById("text");
+  text.innerHTML = html;
+
+  // Show chapters expanded if html is not too long.
+  if (html.length < 100000)
+  {
+    var divs = text.getElementsByTagName("div");
+    for(var i=0; i < divs.length; ++i)
+    {
+      divs[i].className = "";
+    }
+  }
+}
+
 function show(refsStr)
 {
-  var html = "<div>";
   var authors = getActiveAuthors();
   var refs = parseReferencesHE(refsStr);
   if (authors.length == 0 || refs.length == 0)
     return;
+
+  var html = "<div>";
 
   var interleave = document.getElementById("interleave");
 
@@ -162,18 +184,7 @@ function show(refsStr)
   }
   html += "</div>";
 
-  var text = document.getElementById("text");
-  text.innerHTML = html;
-
-  // Show chapters expanded if html is not too long.
-  if (html.length < 100000)
-  {
-    var divs = text.getElementsByTagName("div");
-    for(var i=0; i < divs.length; ++i)
-    {
-      divs[i].className = "";
-    }
-  }
+  setText(html);
 }
 
 function search(query)
@@ -241,18 +252,7 @@ function search(query)
 
   html += "</div>";
 
-  var text = document.getElementById("text");
-  text.innerHTML = html;
-
-  // Show chapters expanded if html is not too long.
-  if (html.length < 100000)
-  {
-    var divs = text.getElementsByTagName("div");
-    for(var i=0; i < divs.length; ++i)
-    {
-      divs[i].className = "";
-    }
-  }
+  setText(html);
 }
 
 /*
