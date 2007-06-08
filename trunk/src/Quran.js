@@ -43,10 +43,16 @@ var chapters_table = [
 /**
   The Qur'an class.
 */
-function Quran(authorName, titles)
+function Quran(authorName, titles, language)
 {
+  function escapeCSS(str)
+  {
+    return str.replace('-','_');
+  }
   this.name = authorName;
   this.titles = titles;
+  this.lang = language;
+  this.langClass = "l_" + escapeCSS(language);
   this.verses = [];
   this.chapters = [];
   this.setVerses = function(verses)

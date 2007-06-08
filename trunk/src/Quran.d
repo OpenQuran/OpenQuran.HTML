@@ -142,6 +142,8 @@ class Quran
   { return author; }
   public char[][] getVerses()
   { return verses; }
+  public char[] getLanguage()
+  { return language; }
 
   private char[]   author;   /// The author name of the Qur'an file.
   private char[]   language; /// A two or three letter language code.

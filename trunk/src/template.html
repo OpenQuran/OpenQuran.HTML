@@ -26,6 +26,11 @@ h2 { margin-left: 5px; font-size: 1em; }
   font-style: normal;
   background-color: #F55;
 }
+.l_ar {
+  font-size: 1.3em;
+  font-family: "Traditional Arabic";
+  direction: rtl;
+}
 /* Verse */
 .v { margin: 5px 30px;}
 /* References */
@@ -223,10 +228,9 @@ function show(refsStr)
 
   if (interleave.checked && authors.length > 1)
   {
-    // We take the chapter titles and basmalah from the author
-    // selected in the chapterListFromAuthor list.
-    var fromAuthor = document.getElementById("chapterListFromAuthor");
-    var author = g_Authors[parseInt(fromAuthor.value)];
+    // We take the chapter titles and basmalah from the first author
+    // in the array
+    var author = authors[0];
     for(var i=0; i < refs.length; ++i)
     {
       var aref = refs[i];
@@ -245,7 +249,7 @@ function show(refsStr)
           html += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>";
           for(var l=0; l < authors.length; ++l)
           {
-            html += '<p class="as">'+authors[l].name+'</p><p class="v">'+ authors[l].chapters[cidx][vidx] + "</p>";
+            html += '<p class="as">'+authors[l].name+'</p><p class="v '+authors[l].langClass+ '">'+ authors[l].chapters[cidx][vidx] + "</p>";
           }
         }
         html += "</div>";
