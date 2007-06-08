@@ -67,16 +67,49 @@ h2 { margin-left: 5px; font-size: 1em; }
 {%ReferenceParser.js%}
 </script>
 <script type="text/javascript">
-// var g_Authors = [
-//   {name:"Yusuf Ali"},
-//   {name:"Rashad Khalifa"},
-//   {name:"Edip Yüksel"}
-// ];
 var g_Authors = {%QuranObjects%}
 /**
   Author: Aziz Köksal
   License: GPL2
 */
+/**
+  History class for keeping track of commands typed in a text box.
+*/
+function History()
+{
+  this.current = 0;
+  this.array = [];
+  this.getCurrent = function()
+  {
+    if (this.current == this.array.length)
+      return "";
+    return this.array[this.current];
+  }
+  this.add = function(item)
+  {
+    // Don't add item if the current item is the special, empty string
+    // OR if it matches the last item in the array.
+    if ((this.current == this.array.length || this.current == this.array.length -1) &&
+         this.getCurrent() == item)
+      return;
+
+    this.array.push( item );
+    this.current = this.array.length -1;
+  }
+  this.prev = function()
+  {
+    if (this.current > 0)
+      this.current--;
+    return this.getCurrent();
+  }
+  this.next = function()
+  {
+    if (this.current <= this.array.length - 1)
+      this.current++;
+    return this.getCurrent();
+  }
+}
+
 function debug(msg)
 {
   document.getElementById('debug').appendChild(document.createTextNode(msg+"\n"));
@@ -401,44 +434,6 @@ function getNode(refs)
 }
 */
 
-/**
-  History class for keeping track of commands typed in a text box.
-*/
-function History()
-{
-  this.current = 0;
-  this.array = [];
-  this.getCurrent = function()
-  {
-    if (this.current == this.array.length)
-      return "";
-    return this.array[this.current];
-  }
-  this.add = function(item)
-  {
-    // Don't add item if the current item is the special, empty string
-    // OR if it matches the last item in the array.
-    if ((this.current == this.array.length || this.current == this.array.length -1) &&
-         this.getCurrent() == item)
-      return;
-
-    this.array.push( item );
-    this.current = this.array.length -1;
-  }
-  this.prev = function()
-  {
-    if (this.current > 0)
-      this.current--;
-    return this.getCurrent();
-  }
-  this.next = function()
-  {
-    if (this.current <= this.array.length - 1)
-      this.current++;
-    return this.getCurrent();
-  }
-}
-
 function changeAuthor(select)
 {
   populateChapterList(parseInt(select.value));
@@ -673,7 +668,7 @@ function visibilityOfChapters(value)
 <div style="padding:0 5px 5px 5px;">
 <div style="float:right">
 <p><select id="chapterListFromAuthor" onchange="changeAuthor(this)"></select></p>
-<p><select id="chapterList" multiple="true" size="20" onchange="selectChapter(this)"></select></p>
+<p><select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select></p>
 </div>
 <p>Available authors:</p>
 <div id="list"></div>
