@@ -22,6 +22,10 @@ h2 { margin-left: 5px; font-size: 1em; }
   background-color: #FF6;
   border-bottom: 1px solid #DD5;
 }
+#error em {
+  font-style: normal;
+  background-color: #F55;
+}
 /* Verse */
 .v { margin: 5px 30px;}
 /* References */
@@ -481,9 +485,9 @@ function parseReferencesHE(str)
       throw e;
     var errorMsg = "";
     if (e.pos == str.length)
-      errorMsg = str + '<u> </u>';
+      errorMsg = str + '<em> </em>';
     else
-      errorMsg = str.slice(0, e.pos) + "<u>" + str[e.pos] + "</u>" + str.slice(e.pos+1);
+      errorMsg = str.slice(0, e.pos) + "<em>" + str[e.pos] + "</em>" + str.slice(e.pos+1);
     errorMsg = "<pre>"+errorMsg+"</pre>"+"Error in reference list: " + e.msg;
 
     var errDiv = document.getElementById("error");
