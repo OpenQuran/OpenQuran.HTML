@@ -549,10 +549,11 @@ function loadVerses(checkbox)
   authorNode.appendChild(document.createTextNode(" loading..."));
 
   // Verses are separated by '\n'. Splitting the contents of the
-  // comment node will return an array of 6236 strings.
-  var versesArray = verses.data.split('\n');
+  // node will return an array of 6236 strings.
+  var versesArray = verses.innerHTML.split('\n');
 
-  verses.data = ""; // Once the data is loaded, we can empty the comment node.
+  // Once the data is loaded, we can empty the node.
+  verses.innerHTML = "";
 
   // Finally set the authors verses.
   g_Authors[index].setVerses( versesArray );
