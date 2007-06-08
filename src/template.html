@@ -442,6 +442,20 @@ function selectChapter(select)
   show(select.value);
 }
 
+function getRandomReferences(num)
+{
+  if (num <= 0)
+    return [];
+  var refs = [];
+  do
+  {
+    var cidx = Math.floor(Math.random()*100) % 114;
+    var vidx = Math.floor(Math.random()*100) % verses_table[cidx];
+    refs.push( new Reference([new Range(Type.Number, cidx+1)], [new Range(Type.Number, vidx+1)]) );
+  } while(--num)
+  return refs;
+}
+
 /**
   Parses a reference list and returns an array of Reference objects.
   Returns an empty array and shows an error message
@@ -449,6 +463,10 @@ function selectChapter(select)
 */
 function parseReferencesHE(str)
 {
+  var m;
+  if (m = /^rand(om)? *(\d+)?$/.exec(str))
+    return getRandomReferences(m.length == 3 ? parseInt(m[2]) : 1);
+
   var parser = new ReferenceListParser(str);
 //   var tokens;
   var refs = [];
