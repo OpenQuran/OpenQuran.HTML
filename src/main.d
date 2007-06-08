@@ -468,7 +468,7 @@ void toHTML(char[][] authors)
   foreach(quran; qurans)
   {
     char[] titles = toArrayLiteral(quran.getTitles);
-    char[] authorObject = std.string.format("new Quran(\n%s,\n%s)", "'"~escapeQuotes(quran.getAuthor)~"'", titles);
+    char[] authorObject = std.string.format("new Quran(\n%s,\n%s,\n%s)", "'"~escapeQuotes(quran.getAuthor)~"'", titles, "'"~quran.getLanguage~"'");
 
     authorsArray ~= authorObject ~ ",\n";
   }
