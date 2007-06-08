@@ -55,7 +55,6 @@ h2 { margin-left: 5px; font-size: 1em; }
   font-style: italic;
   margin-left: 15px;
 }
-.notloaded { color: #999; }
 </style>
 <script type="text/javascript">
 {%Quran.js%}
@@ -526,20 +525,28 @@ function removeErrorMsg()
 
 function loadVerses(checkbox)
 {
-  var parent = checkbox.parentNode;
-  if (parent.className != "notloaded")
+  var authors = getActiveAuthors();
+
+  if (!authors.length)
+    disableControls(true);
+  else if (authors.length == 1)
+    disableControls(false);
+
+  var authorNode = checkbox.parentNode;
+
+  if (authorNode.isLoaded)
     return; // Author is already loaded
 
   var div = document.getElementById("verses");
 
   // Extract index from id.
   var index = /(\d+)$/.exec(checkbox.id)[1];
+
   // Get the comment node with the verses of the requested author.
   var verses = div.childNodes[index];
 
   // Add loading-message
-  parent.removeAttribute("class");
-  parent.appendChild(document.createTextNode(" loading..."));
+  authorNode.appendChild(document.createTextNode(" loading..."));
 
   // Verses are separated by '\n'. Splitting the contents of the
   // comment node will return an array of 6236 strings.
@@ -550,8 +557,22 @@ function loadVerses(checkbox)
   // Finally set the authors verses.
   g_Authors[index].setVerses( versesArray );
 
+  authorNode.isLoaded = true;
+
   // Remove loading-message
-  parent.removeChild(parent.lastChild);
+  authorNode.removeChild(authorNode.lastChild);
+}
+
+/**
+  Enable or disable user controls.
+*/
+function disableControls(disabled)
+{
+  var ids = ["chapterList","refs","interleave","search","matchany","highlight", "restrict"];
+  for(var i=0; i < ids.length; ++i)
+  {
+    document.getElementById(ids[i]).disabled = disabled;
+  }
 }
 
 function getInnerText(node)
@@ -608,10 +629,12 @@ function init()
     option.appendChild(document.createTextNode(g_Authors[i].name));
     option.value = i;
     list.appendChild(option);
-    div.innerHTML += '<p class="notloaded"><input onchange="loadVerses(this)" type="checkbox" id="author'+i+'">' + g_Authors[i].name + "</input></p>";
+    div.innerHTML += '<p><input onchange="loadVerses(this)" type="checkbox" id="author'+i+'">' + g_Authors[i].name + "</input></p>";
+    div.firstChild.isLoaded = false; // Add isLoaded property.
   }
   list.style.width = "auto"; // Required by IE
   populateChapterList(0);
+  disableControls(true);
 }
 
 /// Empties the contents of a node and returns it.
@@ -665,7 +688,7 @@ function visibilityOfChapters(value)
 </head>
 <body onload="init()" style="margin:0;padding:0;">
 <h1><a href="http://code.google.com/p/openquran/">openquran</a><br><span style="font-size: 0.4em;">Version 0.22</span></h1>
-<div style="padding:0 5px 5px 5px;">
+<div style="padding:0px 5px 5px 5px;">
 <div style="float:right">
 <p><select id="chapterListFromAuthor" onchange="changeAuthor(this)"></select></p>
 <p><select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select></p>
