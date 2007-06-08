@@ -402,15 +402,17 @@ function History()
   this.array = [];
   this.getCurrent = function()
   {
+    if (this.current == this.array.length)
+      return "";
     return this.array[this.current];
   }
   this.add = function(item)
   {
-    // Don't add item if it matches the last item in the array.
-    if (this.array.length > 1 &&
-        this.array.length-1 == this.current &&
-        this.getCurrent() == item)
-        return;
+    // Don't add item if the current item is the special, empty string
+    // OR if it matches the last item in the array.
+    if ((this.current == this.array.length || this.current == this.array.length -1) &&
+         this.getCurrent() == item)
+      return;
 
     this.array.push( item );
     this.current = this.array.length -1;
@@ -419,16 +421,12 @@ function History()
   {
     if (this.current > 0)
       this.current--;
-    else if (this.array.length == 0)
-      return "";
     return this.getCurrent();
   }
   this.next = function()
   {
-    if (this.current < this.array.length -1)
+    if (this.current <= this.array.length - 1)
       this.current++;
-    else if (this.array.length == 0)
-      return "";
     return this.getCurrent();
   }
 }
@@ -672,7 +670,7 @@ References: <input type="text" id="refs" /> <button onclick="show(document.getEl
 <span id="collapse" class="hidden"><a href='javascript:visibilityOfChapters("hidden")'>Collapse all chapters</a></span></p>-->
 <div id="help" style="display:none;">
 </div>
-<div id="debug">
+<div id="debug" onclick="this.innerHTML=''">
 </div>
 <div id="text"></div>
 </div>
