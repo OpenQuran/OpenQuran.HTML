@@ -550,10 +550,10 @@ function loadVerses(checkbox)
 
   // Verses are separated by '\n'. Splitting the contents of the
   // node will return an array of 6236 strings.
-  var versesArray = verses.innerHTML.split('\n');
+  var versesArray = verses.value.split(g_newline);
 
   // Once the data is loaded, we can empty the node.
-  verses.innerHTML = "";
+  verses.value = "";
 
   // Finally set the authors verses.
   g_Authors[index].setVerses( versesArray );
@@ -563,6 +563,12 @@ function loadVerses(checkbox)
   // Remove loading-message
   authorNode.removeChild(authorNode.lastChild);
 }
+
+/**
+  The newline characters the browser uses in textareas.
+  Set by init() to '\r\n' if Windows style newlines are used.
+*/
+var g_newline = '\n';
 
 /**
   Enable or disable user controls.
@@ -594,6 +600,12 @@ function init()
   if (document.body.textContent)
     getText = getTextContent;
 
+  // See if browser uses UNIX or Windows style newlines in textareas.
+  var ta = document.createElement("textarea");
+  ta.value = '\n';
+  if (ta.value == '\r\n')
+    g_newline = '\r\n';
+
   // onkeydown event handler for text inputs.
   function onKeyDown(e)
   {
@@ -611,14 +623,22 @@ function init()
     else if(e.keyCode == 40)
       this.value = this.history.next();
   }
+  // Prevents Opera from firing the default button,
+  // which would do a search or a reference view twice.
+  function onKeyPress() {
+    if(event.keyCode == 13)
+      return false;
+  }
   // Set event handler and new History instance for references input.
   var input = document.getElementById("refs");
   input.history = new History();
   input.onkeydown = onKeyDown;
+  input.onkeypress = onKeyPress;
   // Ditto for search input.
   input = document.getElementById("search");
   input.history = new History();
   input.onkeydown = onKeyDown;
+  input.onkeypress = onKeyPress;
 
   // Set authors list
   var div = document.getElementById("list");
@@ -702,7 +722,7 @@ References: <input type="text" id="refs" /> <button onclick="show(document.getEl
 <input type="checkbox" id="interleave">interleave verses</input><br/>
 </td>
 <td>
-<input onkeypress="if(event.keyCode == 13)return false;" type="text" id="search" /> <button onclick="search(document.getElementById('search').value)">Search</button><br/>
+<input type="text" id="search" /> <button onclick="search(document.getElementById('search').value)">Search</button><br/>
 <input type="checkbox" id="matchany">match any</input>
 <input type="checkbox" id="highlight">highlight matches</input>
 <input type="checkbox" id="restrict">restrict to references</input>
