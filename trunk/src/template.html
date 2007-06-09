@@ -17,6 +17,7 @@ h2:hover { color: #309; }
 .hidden { display: none }
 #list p { margin: 0px; padding: 0px; }
 h2 { margin-left: 5px; font-size: 1em; }
+.cellborder { border: 1px solid #CCE; }
 /* Highlighted matches */
 #text em {
   font-style: normal;
@@ -697,22 +698,26 @@ function visibilityOfChapters(value)
 <div style="margin:0px;padding:5px;">
 <table cellpadding="5" valign="top">
 <tr style="vertical-align:top;">
-<td style="white-space:nowrap;">
-Authors:<br/>
-<div id="list" style="margin-left:10px;"></div>
+<td class="cellborder">
+  References:<br/>
+  <input type="text" id="refs" /> <button onclick="show(document.getElementById('refs').value)">Show</button><br/>
+  <input type="checkbox" id="interleave">interleave verses</input>
 </td>
-<td>
-References:<input type="text" id="refs" /> <button onclick="show(document.getElementById('refs').value)">Show</button><br/>
-<input type="checkbox" id="interleave">interleave verses</input><br/>
+<td style="white-space:nowrap;" rowspan="2">
+  Authors:<br/>
+  <div id="list" style="margin-left:10px;"></div>
 </td>
-<td>
-<input type="text" id="search" /> <button onclick="search(document.getElementById('search').value)">Search</button><br/>
-<input type="checkbox" id="matchany">match any</input><br/>
-<input type="checkbox" id="highlight">highlight matches</input><br/>
-<input type="checkbox" id="restrict">restrict to references</input>
+<td rowspan="2">
+  <select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select>
 </td>
-<td>
-<select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select>
+</tr>
+<tr>
+<td class="cellborder">
+  Search:<br/>
+  <input type="text" id="search" /> <button onclick="search(document.getElementById('search').value)">Search</button><br/>
+  <input type="checkbox" id="matchany">match any</input><br/>
+  <input type="checkbox" id="highlight">highlight matches</input><br/>
+  <input type="checkbox" id="restrict">restrict to references</input>
 </td>
 </tr>
 </table>
