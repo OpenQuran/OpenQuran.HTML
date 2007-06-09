@@ -623,6 +623,7 @@ void main(char[][] args)
 
       return;
     case "tohtml":
+      usageMsg = "tohtml";
       if (args.length < 3)
       {
         errorMsg = "no authors specified.";
@@ -640,7 +641,7 @@ void main(char[][] args)
 
   return;
 Lerr:
-  printUsage(args[1]);
+  printUsage(usageMsg);
   fwritefln(stderr, "Error: ", errorMsg);
   return -1;
 }
