@@ -28,17 +28,19 @@ h2 { margin-left: 5px; font-size: 1em; }
   font-style: normal;
   background-color: #F55;
 }
-.l_ar {
-  font-size: 1.3em;
+p.l_ar, div.l_ar {
   font-family: "Traditional Arabic";
   direction: rtl;
+}
+p.l_ar, div.l_ar p.v {
+  font-size: 1.4em;
 }
 /* Verse */
 .v { margin: 5px 30px;}
 /* References */
 .r {
   font-family: Arial;
-  margin: 0 0 0 15px;
+  margin: 0 15px;
   font-weight: bold;
   font-size: 0.8em;
 }
@@ -50,7 +52,7 @@ h2 { margin-left: 5px; font-size: 1em; }
 .as {
   color: #777;
   font-family: Arial;
-  margin: 0 0 0 15px;
+  margin: 0 15px;
   font-size: 0.8em;
 }
 .basmalah {
@@ -535,23 +537,17 @@ function loadVerses(checkbox)
   var verses = div.childNodes[checkbox.authorIdx];
 
   // Verses are separated by '\n'. Splitting the contents of the
-  // textarea will return an array of 6236 strings.
-  var versesArray = verses.value.split(g_newline);
+  // pre element will return an array of 6236 strings.
+  var versesArray = getText(verses).split('\n');
 
-  // Once the data is loaded, we can empty the textarea.
-  verses.value = "";
+  // Once the data is loaded, we can empty the pre element.
+  verses.innerHTML = "";
 
   // Finally set the authors verses.
   g_Authors[checkbox.authorIdx].setVerses( versesArray );
 
   checkbox.isLoaded = true;
 }
-
-/**
-  The newline characters the browser uses in textareas.
-  Set by init() to '\r\n' if Windows style newlines are used.
-*/
-var g_newline = '\n';
 
 /**
   Enable or disable user controls.
@@ -584,12 +580,6 @@ function init()
 
   if (document.body.textContent)
     getText = getTextContent;
-
-  // See if browser uses UNIX or Windows style newlines in textareas.
-  var ta = document.createElement("textarea");
-  ta.value = '\n';
-  if (ta.value == '\r\n')
-    g_newline = '\r\n';
 
   // onkeydown event handler for text inputs.
   function onKeyDown(e)
