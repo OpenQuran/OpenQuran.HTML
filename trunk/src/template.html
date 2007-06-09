@@ -5,6 +5,7 @@
 <style type="text/css">
 * { font-family: Verdana; }
 h1 {
+  margin: 0px;
   padding: 5px;
   background-color: #CCDDEE;
   border-bottom: 2px solid #399;
@@ -578,6 +579,8 @@ var getText = getInnerText;
 
 function init()
 {
+  disableControls(true);
+
   if (document.body.textContent)
     getText = getTextContent;
 
@@ -632,10 +635,9 @@ function init()
     input.isLoaded = false;
     input.authorIdx = i;
   }
-  list.style.width = "auto"; // Required by IE
+
   document.getElementById("chapterList").authorIdx = -1;
   populateChapterList(0);
-  disableControls(true);
 }
 
 /// Empties the contents of a node and returns it.
@@ -665,7 +667,7 @@ function populateChapterList(authorIdx)
 
   list.style.width = "auto"; // Required by IE
 }
-
+/*
 function visibilityOfChapters(value)
 {
   var span_collapse = document.getElementById("collapse");
@@ -687,34 +689,34 @@ function visibilityOfChapters(value)
     divs[i].className = value;
   }
 }
-
+*/
 </script>
 </head>
 <body onload="init()" style="margin:0;padding:0;">
 <h1><a href="http://code.google.com/p/openquran/">openquran</a><br><span style="font-size: 0.4em;">Version 0.22</span></h1>
-<div style="padding:0px 5px 5px 5px;">
-<div style="float:right">
-<p><select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select></p>
-</div>
-<p>Available authors:</p>
-<div id="list"></div>
-<table>
-<tr><td>
-References: <input type="text" id="refs" /> <button onclick="show(document.getElementById('refs').value)">Show</button><br/>
+<div style="margin:0px;padding:5px;">
+<table cellpadding="5" valign="top">
+<tr style="vertical-align:top;">
+<td style="white-space:nowrap;">
+Authors:<br/>
+<div id="list" style="margin-left:10px;"></div>
+</td>
+<td>
+References:<input type="text" id="refs" /> <button onclick="show(document.getElementById('refs').value)">Show</button><br/>
 <input type="checkbox" id="interleave">interleave verses</input><br/>
 </td>
 <td>
 <input type="text" id="search" /> <button onclick="search(document.getElementById('search').value)">Search</button><br/>
-<input type="checkbox" id="matchany">match any</input>
-<input type="checkbox" id="highlight">highlight matches</input>
+<input type="checkbox" id="matchany">match any</input><br/>
+<input type="checkbox" id="highlight">highlight matches</input><br/>
 <input type="checkbox" id="restrict">restrict to references</input>
-</td></tr>
+</td>
+<td>
+<select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select>
+</td>
+</tr>
 </table>
 <div id="error" onclick="removeErrorMsg()"></div>
-<!--
-<p>Click on a chapter header to expand.<br>
-<span id="expand"><a href='javascript:visibilityOfChapters("")'>Expand all chapters</a> (don't click on slow computers)</span>
-<span id="collapse" class="hidden"><a href='javascript:visibilityOfChapters("hidden")'>Collapse all chapters</a></span></p>-->
 <div id="help" style="display:none;">
 </div>
 <div id="debug" onclick="this.innerHTML=''">
