@@ -131,10 +131,8 @@ function getActiveAuthors()
   for(var i=0; i < nodes.length; ++i)
   {
     var cbox = nodes[i].childNodes[0];
-    if (cbox.checked) {
-      var index = /(\d+)$/.exec(cbox.id)[1];
-      authors.push(g_Authors[index]);
-    }
+    if (cbox.checked)
+      authors.push(g_Authors[cbox.authorIdx]);
   }
   return authors;
 }
@@ -433,12 +431,6 @@ function getNode(refs)
 }
 */
 
-function changeAuthor(select)
-{
-  populateChapterList(parseInt(select.value));
-//   select.width = document.getElementById("chapterList").width;
-}
-
 function selectChapter(select)
 {
   show(select.value);
@@ -532,36 +524,25 @@ function loadVerses(checkbox)
   else if (authors.length == 1)
     disableControls(false);
 
-  var authorNode = checkbox.parentNode;
-
-  if (authorNode.isLoaded)
+  if (checkbox.isLoaded)
     return; // Author is already loaded
 
   var div = document.getElementById("verses");
 
-  // Extract index from id.
-  var index = /(\d+)$/.exec(checkbox.id)[1];
-
   // Get the comment node with the verses of the requested author.
-  var verses = div.childNodes[index];
-
-  // Add loading-message
-  authorNode.appendChild(document.createTextNode(" loading..."));
+  var verses = div.childNodes[checkbox.authorIdx];
 
   // Verses are separated by '\n'. Splitting the contents of the
-  // node will return an array of 6236 strings.
+  // textarea will return an array of 6236 strings.
   var versesArray = verses.value.split(g_newline);
 
-  // Once the data is loaded, we can empty the node.
+  // Once the data is loaded, we can empty the textarea.
   verses.value = "";
 
   // Finally set the authors verses.
-  g_Authors[index].setVerses( versesArray );
+  g_Authors[checkbox.authorIdx].setVerses( versesArray );
 
-  authorNode.isLoaded = true;
-
-  // Remove loading-message
-  authorNode.removeChild(authorNode.lastChild);
+  checkbox.isLoaded = true;
 }
 
 /**
@@ -625,35 +606,34 @@ function init()
   }
   // Prevents Opera from firing the default button,
   // which would do a search or a reference view twice.
-  function onKeyPress() {
-    if(event.keyCode == 13)
+  function onKeyPress(e) {
+    if(!e) e = window.event;
+    if(e.keyCode == 13)
       return false;
   }
-  // Set event handler and new History instance for references input.
-  var input = document.getElementById("refs");
-  input.history = new History();
-  input.onkeydown = onKeyDown;
-  input.onkeypress = onKeyPress;
-  // Ditto for search input.
-  input = document.getElementById("search");
-  input.history = new History();
-  input.onkeydown = onKeyDown;
-  input.onkeypress = onKeyPress;
+  // Set event handler and new History instance for "refs" and "search".
+  for (var i=0; i < 2; ++i)
+  {
+    var input = document.getElementById(["refs","search"][i]);
+    input.history = new History();
+    input.onkeydown = onKeyDown;
+    input.onkeypress = onKeyPress;
+  }
 
   // Set authors list
   var div = document.getElementById("list");
-  var list = document.getElementById("chapterListFromAuthor");
-  var option;
+
   for (var i=0; i < g_Authors.length; ++i)
   {
-    option = document.createElement("option");
-    option.appendChild(document.createTextNode(g_Authors[i].name));
-    option.value = i;
-    list.appendChild(option);
-    div.innerHTML += '<p><input onchange="loadVerses(this)" type="checkbox" id="author'+i+'">' + g_Authors[i].name + "</input></p>";
-    div.firstChild.isLoaded = false; // Add isLoaded property.
+    var p = div.appendChild(document.createElement("p"));
+    p.innerHTML = '<input onchange="loadVerses(this)" type="checkbox" id="author'+i+'"><span onclick="populateChapterList('+i+')">' + g_Authors[i].name + "</span></input>";
+    // Add properties to input.
+    var input = p.firstChild;
+    input.isLoaded = false;
+    input.authorIdx = i;
   }
   list.style.width = "auto"; // Required by IE
+  document.getElementById("chapterList").authorIdx = -1;
   populateChapterList(0);
   disableControls(true);
 }
@@ -666,10 +646,13 @@ function empty(node)
   return node
 }
 
-function populateChapterList(authorId)
+function populateChapterList(authorIdx)
 {
-  var titles = g_Authors[authorId].titles;
   var list = document.getElementById("chapterList");
+  if (list.authorIdx == authorIdx)
+    return;
+  list.authorIdx = authorIdx;
+  var titles = g_Authors[authorIdx].titles;
   empty(list);
   var option;
   for (var i=0; i < titles.length; ++i)
@@ -711,7 +694,6 @@ function visibilityOfChapters(value)
 <h1><a href="http://code.google.com/p/openquran/">openquran</a><br><span style="font-size: 0.4em;">Version 0.22</span></h1>
 <div style="padding:0px 5px 5px 5px;">
 <div style="float:right">
-<p><select id="chapterListFromAuthor" onchange="changeAuthor(this)"></select></p>
 <p><select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select></p>
 </div>
 <p>Available authors:</p>
