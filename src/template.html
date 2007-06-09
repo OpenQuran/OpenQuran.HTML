@@ -158,13 +158,14 @@ function showBBCode()
       if (skipFound)
         node = node.nextSibling; // Skip "Found..."
       code += "[b]" + getText(node) + "[/b]\n";
-      node = node.nextSibling;
+      var div = node.nextSibling;
+      node = div.firstChild;
       do
       {
         code += "[size=18]" + getText(node) + "[/size]\n";
-        var div = node.nextSibling;
+        var div2 = node.nextSibling;
         // traverse children of div-tag
-        node = div.firstChild;
+        node = div2.firstChild;
         if (node.className != "r")
         {
           code += "[i]" + getText(node) + "[/i]\n";
@@ -176,8 +177,9 @@ function showBBCode()
           node = node.nextSibling;
           code += getText(node) + "\n";
         } while (node = node.nextSibling);
-        node = div; // leave div-tag
-      } while ((node = node.nextSibling) && node.tagName == "H2");
+        node = div2.nextSibling; // leave div-tag
+      } while (node);
+      node = div.nextSibling;
     } while (node);
   }
 
@@ -244,7 +246,8 @@ function setText(html, textProperties)
     var divs = text.getElementsByTagName("div");
     for(var i=0; i < divs.length; ++i)
     {
-      divs[i].className = "";
+      if (divs[i].className == "hidden")
+        divs[i].className = "";
     }
   }
 }
@@ -295,7 +298,7 @@ function show(refsStr)
     for(var i=0; i < authors.length; ++i)
     {
       var author = authors[i];
-      html += '<p class="author">'+author.name+":</p>";
+      html += '<p class="author '+author.langClass+'">'+author.name+':</p><div class="'+author.langClass+'">';
       for(var j=0; j < refs.length; ++j)
       {
         var aref = refs[j];
@@ -318,6 +321,7 @@ function show(refsStr)
           html += "</div>";
         }
       }
+      html += "</div>";
     }
   }
 
@@ -384,7 +388,7 @@ function search(query)
         }
       }
     }
-    html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author">'+author.name+":</p>" + htmlauthor;
+    html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author">'+author.name+':</p><div class="'+author.langClass+'">' + htmlauthor + "</div>";
   }
 
   setText(html, {type:"search", highlighted: hl});
