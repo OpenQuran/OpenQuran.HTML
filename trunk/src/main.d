@@ -482,7 +482,7 @@ void toHTML(char[][] authors)
     char* end = verses[$-1].ptr + verses[$-1].length;
 
     char[] allverses = verses[0].ptr[0 .. end - verses[0].ptr];
-    commentedVerses ~= "<div>"~allverses~"</div>";
+    commentedVerses ~= "<textarea>"~allverses~"</textarea>";
   }
   template_html = myreplace(template_html, "{%QuranObjects%}", authorsArray);
   template_html = myreplace(template_html, "{%Verses%}", commentedVerses);
