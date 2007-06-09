@@ -423,17 +423,6 @@ char[] escapeQuotes(char[] str)
   return replace(str, "'", r"\'");
 }
 
-char[] toArrayLiteral(char[][] strArray)
-{
-  // Construct array literal
-  char[] literal = "[\n";
-  foreach(str; strArray)
-    literal ~= "'" ~ escapeQuotes(str) ~ "',\n"; // escape single quotes
-  literal.length = literal.length - 2; // Remove last ",\n"
-  literal ~= "\n]";
-  return literal;
-}
-
 char[] myreplace(char[] text, char[] from, char[] to)
 {
   int start = find(text, from);
@@ -467,7 +456,12 @@ void toHTML(char[][] authors)
 
   foreach(quran; qurans)
   {
-    char[] titles = toArrayLiteral(quran.getTitles);
+    char[] titles = "\"";
+    foreach(str; quran.getTitles)
+      titles ~= escapeQuotes(str) ~ r"\n"; // escape single quotes
+    titles.length = titles.length -1;
+    titles[$-1] = '"';
+
     char[] authorObject = std.string.format("new Quran(\n%s,\n%s,\n%s)", "'"~escapeQuotes(quran.getAuthor)~"'", titles, "'"~quran.getLanguage~"'");
 
     authorsArray ~= authorObject ~ ",\n";

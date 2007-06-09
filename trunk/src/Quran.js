@@ -50,7 +50,7 @@ function Quran(authorName, titles, language)
     return str.replace('-','_');
   }
   this.name = authorName;
-  this.titles = titles;
+  this.titles = titles.split('\n');
   this.lang = language;
   this.langClass = "l_" + escapeCSS(language);
   this.verses = [];
