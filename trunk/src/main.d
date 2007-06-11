@@ -18,6 +18,14 @@ version(Windows)
 else
 {
   import std.stdio;
+  void werrf(T...)(T args)
+  {
+    fwritef(stderr, args);
+  }
+  void werrfln(T...)(T args)
+  {
+    fwritefln(stderr, args);
+  }
 }
 
 /++
@@ -385,7 +393,7 @@ void printUsage(char[] about)
     default:
       assert(0, "Unhandled switch case in printUsage().");
   }
-  fwritefln(stderr, "Usage:  \n  ", usage);
+  werrfln("Usage:  \n  ", usage);
 }
 
 version(linux)
@@ -636,6 +644,6 @@ void main(char[][] args)
   return;
 Lerr:
   printUsage(usageMsg);
-  fwritefln(stderr, "Error: ", errorMsg);
+  werrfln("Error: ", errorMsg);
   return -1;
 }
