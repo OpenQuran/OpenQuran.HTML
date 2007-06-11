@@ -565,7 +565,7 @@ function loadVerses(checkbox)
 */
 function disableControls(disabled)
 {
-  var ids = ["chapterList","refs","interleave","search","matchany","highlight", "restrict"];
+  var ids = ["chapterList","refs","btnShow","interleave","search","btnSearch","matchany","highlight", "restrict"];
   for(var i=0; i < ids.length; ++i)
   {
     document.getElementById(ids[i]).disabled = disabled;
@@ -707,7 +707,7 @@ function visibilityOfChapters(value)
 <tr style="vertical-align:top;">
 <td class="cellborder">
   References:<br/>
-  <input type="text" id="refs" /> <button onclick="show(document.getElementById('refs').value)">Show</button><br/>
+  <input type="text" id="refs" /> <button id="btnShow" onclick="show(document.getElementById('refs').value)">Show</button><br/>
   <input type="checkbox" id="interleave">interleave verses</input>
 </td>
 <td style="white-space:nowrap;" rowspan="2">
@@ -721,7 +721,7 @@ function visibilityOfChapters(value)
 <tr>
 <td class="cellborder">
   Search:<br/>
-  <input type="text" id="search" /> <button onclick="search(document.getElementById('search').value)">Search</button><br/>
+  <input type="text" id="search" /> <button id="btnSearch" onclick="search(document.getElementById('search').value)">Search</button><br/>
   <input type="checkbox" id="matchany">match any</input><br/>
   <input type="checkbox" id="highlight">highlight matches</input><br/>
   <input type="checkbox" id="restrict">restrict to references</input>
