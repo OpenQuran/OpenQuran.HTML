@@ -631,17 +631,28 @@ function init()
     input.authorIdx = i;
   }
 
-  document.getElementById("chapterList").authorIdx = -1;
+  // Initialize chapter list.
+  var chapterList = document.getElementById("chapterList");
+  var option;
+  for (var i=0; i < NR_OF_CHAPTERS; ++i)
+  {
+    option = chapterList.appendChild(document.createElement("option"));
+    option.value = i+1;
+    option.appendChild(document.createTextNode(""));
+  }
+  chapterList.authorIdx = -1;
   populateChapterList(0);
 }
 
 /// Empties the contents of a node and returns it.
+/*
 function empty(node)
 {
   while(node.firstChild)
     node.removeChild( node.firstChild );
   return node
 }
+*/
 
 function populateChapterList(authorIdx)
 {
@@ -649,16 +660,11 @@ function populateChapterList(authorIdx)
   if (list.authorIdx == authorIdx)
     return;
   list.authorIdx = authorIdx;
+//   list.className = g_Authors[authorIdx].langClass;
+
   var titles = g_Authors[authorIdx].titles;
-  empty(list);
-  var option;
   for (var i=0; i < titles.length; ++i)
-  {
-    option = document.createElement("option");
-    option.appendChild(document.createTextNode((i+1)+". "+titles[i]));
-    option.value = i+1;
-    list.appendChild(option);
-  }
+    list.childNodes[i].firstChild.data = (i+1)+". "+titles[i];
 
   list.style.width = "auto"; // Required by IE
 }
