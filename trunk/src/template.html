@@ -15,7 +15,7 @@ h1 a:hover { color: #469; }
 h2 { cursor: pointer; }
 h2:hover { color: #309; }
 .hidden { display: none }
-#list p { margin: 0px; padding: 0px; }
+#authorList p { margin: 0 0 0 10px; padding: 0px; }
 h2 { margin-left: 5px; font-size: 1em; }
 .cellborder { border: 1px solid #CCE; }
 /* Highlighted matches */
@@ -129,16 +129,16 @@ function onHeaderClick(header)
 
 function getActiveAuthors()
 {
-  var div = document.getElementById("list");
-  var nodes = div.childNodes;
-  var authors = [];
-  for(var i=0; i < nodes.length; ++i)
+  var list = document.getElementById("authorList");
+  var authors = list.getElementsByTagName("input");
+  var active = [];
+  for(var i=0; i < authors.length; ++i)
   {
-    var cbox = nodes[i].childNodes[0];
+    var cbox = authors[i];
     if (cbox.checked)
-      authors.push(g_Authors[cbox.authorIdx]);
+      active.push(g_Authors[cbox.authorIdx]);
   }
-  return authors;
+  return active;
 }
 
 function showBBCode()
@@ -619,11 +619,11 @@ function init()
   }
 
   // Set authors list
-  var div = document.getElementById("list");
+  var list = document.getElementById("authorList");
 
   for (var i=0; i < g_Authors.length; ++i)
   {
-    var p = div.appendChild(document.createElement("p"));
+    var p = list.appendChild(document.createElement("p"));
     p.innerHTML = '<input onchange="loadVerses(this)" type="checkbox" id="author'+i+'"><span onclick="populateChapterList('+i+')">' + g_Authors[i].name + "</span></input>";
     // Add properties to input.
     var input = p.firstChild;
@@ -688,7 +688,7 @@ function visibilityOfChapters(value)
 </script>
 </head>
 <body onload="init()" style="margin:0;padding:0;">
-<h1><a href="http://code.google.com/p/openquran/">openquran</a><br><span style="font-size: 0.4em;">Version 0.22</span></h1>
+<h1><a href="http://code.google.com/p/openquran/">openquran</a> dhtml<br><span style="font-size: 0.4em;">Version 0.22</span></h1>
 <div style="margin:0px;padding:5px;">
 <table cellpadding="5" valign="top">
 <tr style="vertical-align:top;">
@@ -699,7 +699,7 @@ function visibilityOfChapters(value)
 </td>
 <td style="white-space:nowrap;" rowspan="2">
   Authors:<br/>
-  <div id="list" style="margin-left:10px;"></div>
+  <div id="authorList"></div>
 </td>
 <td rowspan="2">
   <select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select>
