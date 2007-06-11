@@ -392,7 +392,7 @@ function search(query)
         }
       }
     }
-    html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author">'+author.name+':</p><div class="'+author.langClass+'">' + htmlauthor + "</div>";
+    html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author '+author.langClass+'">'+author.name+':</p><div class="'+author.langClass+'">' + htmlauthor + "</div>";
   }
 
   setText(html, {type:"search", highlighted: hl});
