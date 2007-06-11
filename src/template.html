@@ -38,9 +38,10 @@ h2 { margin-left: 5px; font-size: 1em; }
   font-family: "Traditional Arabic";
   direction: rtl;
 }
-p.l_ar, .l_ar p.v, .l_ar h2, .l_ar .author {
+.l_ar p.v, .l_ar h2, h2.l_ar, .l_ar .author {
   font-size: 1.6em;
 }
+.l_ar .basmalah, .l_ar .as { font-size: 1.3em; }
 /* Verse */
 .v { margin: 5px 30px;}
 /* Reference */
@@ -198,7 +199,7 @@ function showBBCode()
       var div = node.nextSibling;
       // traverse children of div-tag
       node = div.firstChild;
-      if (node.className != "r")
+      if (node.className.slice(0,1) == "r")
       {
         code += "[i]" + getText(node) + "[/i]\n";
         node = node.nextSibling;
@@ -209,11 +210,10 @@ function showBBCode()
         node = node.nextSibling;
         do
         {
-          code += "[size=13]" + getText(node) + ":[/size]\n";
-          node = node.nextSibling;
-          code += getText(node) + "\n";
+          code += "[size=13]" + getText(node.firstChild) + ":[/size]\n";
+          code += getText(node.lastChild) + "\n";
           node = node.nextSibling
-        } while (node && node.className == "as");
+        } while (node && node.tagName == "DIV");
       } while (node);
       node = div; // leave div-tag
     } while (node = node.nextSibling);
@@ -275,6 +275,7 @@ function show(refsStr)
     // We take the chapter titles and basmalah from the first author
     // in the array
     var author = authors[0];
+    var langClass = author.langClass;
     for(var i=0; i < refs.length; ++i)
     {
       var aref = refs[i];
@@ -284,16 +285,17 @@ function show(refsStr)
         var cidx = cindices[j];
         var cidxStr = ""+(cidx+1);
         var vindices = aref.getVerseIndices(cidx);
-        html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
+        html += '<h2 class="'+langClass+'" onclick="onHeaderClick(this)">'+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
         if (cidx != 0 && cidx != 8) // Don't add Basmalah for chapter 1 and 9
-          html += '<p class="basmalah '+author.langClass+'">'+author.verses[0]+"</p>";
+          html += '<p class="basmalah '+langClass+'">'+author.verses[0]+"</p>";
         for(var k=0; k < vindices.length; ++k)
         {
           var vidx = vindices[k];
-          html += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>";
+          html += '<p class="r '+langClass+'">'+cidxStr+":"+(vidx+1)+"</p>";
           for(var l=0; l < authors.length; ++l)
           {
-            html += '<p class="as">'+authors[l].name+'</p><p class="v '+authors[l].langClass+ '">'+ authors[l].chapters[cidx][vidx] + "</p>";
+            var a = authors[l];
+            html += '<div class="'+a.langClass+'"><p class="as">'+a.name+'</p><p class="v">'+ a.chapters[cidx][vidx] + "</p></div>";
           }
         }
         html += "</div>";
