@@ -18,6 +18,9 @@ h2:hover { color: #309; }
 #authorList p { margin: 0 0 0 10px; padding: 0px; }
 h2 { margin-left: 5px; font-size: 1em; }
 .cellborder { border: 1px solid #CCE; }
+#text {
+  margin: auto 10%;
+}
 /* Highlighted matches */
 #text em {
   font-style: normal;
@@ -161,9 +164,9 @@ function showBBCode()
     {
       if (skipFound)
         node = node.nextSibling; // Skip "Found..."
-      code += "[b]" + getText(node) + "[/b]\n";
-      var div = node.nextSibling;
-      node = div.firstChild;
+      code += "[b]" + getText(node.firstChild) + "[/b]\n";
+      var div = node;
+      node = div.firstChild.nextSibling.firstChild;
       do
       {
         code += "[size=18]" + getText(node) + "[/size]\n";
@@ -302,7 +305,7 @@ function show(refsStr)
     for(var i=0; i < authors.length; ++i)
     {
       var author = authors[i];
-      html += '<p class="author '+author.langClass+'">'+author.name+':</p><div class="'+author.langClass+'">';
+      html += '<div class="'+author.langClass+'"><p class="author">'+author.name+':</p><div>';
       for(var j=0; j < refs.length; ++j)
       {
         var aref = refs[j];
@@ -325,7 +328,7 @@ function show(refsStr)
           html += "</div>";
         }
       }
-      html += "</div>";
+      html += "</div></div>";
     }
   }
 
@@ -392,7 +395,7 @@ function search(query)
         }
       }
     }
-    html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><p class="author '+author.langClass+'">'+author.name+':</p><div class="'+author.langClass+'">' + htmlauthor + "</div>";
+    html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><div class="'+author.langClass+'"><p class="author">'+author.name+':</p><div>' + htmlauthor + "</div></div>";
   }
 
   setText(html, {type:"search", highlighted: hl});
