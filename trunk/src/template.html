@@ -34,18 +34,18 @@ h2 { margin-left: 5px; font-size: 1em; }
 #refs { width: 250px; }
 #search { width: 250px; }
 /* Language styles */
-p.l_ar, div.l_ar {
+.l_ar {
   font-family: "Traditional Arabic";
   direction: rtl;
 }
-p.l_ar, div.l_ar p.v {
+p.l_ar, .l_ar p.v, .l_ar h2, .l_ar .author {
   font-size: 1.6em;
 }
 /* Verse */
 .v { margin: 5px 30px;}
 /* Reference */
 .r {
-/*   font-family: Arial; */
+  font-family: Arial;
   margin: 0 15px;
   font-weight: bold;
   font-size: 0.7em;
@@ -286,7 +286,7 @@ function show(refsStr)
         var vindices = aref.getVerseIndices(cidx);
         html += "<h2 onclick='onHeaderClick(this)'>"+cidxStr+". "+author.titles[cidx]+'</h2><div class="hidden">';
         if (cidx != 0 && cidx != 8) // Don't add Basmalah for chapter 1 and 9
-          html += '<p class="basmalah">'+author.verses[0]+"</p>";
+          html += '<p class="basmalah '+author.langClass+'">'+author.verses[0]+"</p>";
         for(var k=0; k < vindices.length; ++k)
         {
           var vidx = vindices[k];
@@ -492,7 +492,7 @@ function parseReferencesHE(str)
     if (e.pos == str.length)
       errorMsg = str + '<em> </em>';
     else
-      errorMsg = str.slice(0, e.pos) + "<em>" + str[e.pos] + "</em>" + str.slice(e.pos+1);
+      errorMsg = str.slice(0, e.pos) + "<em>" + str.charAt(e.pos) + "</em>" + str.slice(e.pos+1);
     errorMsg = "<pre>"+errorMsg+"</pre>"+"Error in reference list: " + e.msg;
 
     var errDiv = document.getElementById("error");
