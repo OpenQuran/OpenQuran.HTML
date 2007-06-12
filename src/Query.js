@@ -4,13 +4,15 @@
 */
 //module Query;
 
-function Search(query, casei)
+function Search(query, matchany, highlight, casei)
 {
   this.casei = casei;
   this.queries = parseQuery(query, casei);
 
-  this.findAll_ = function(text)
+  this.findAll = function(text)
   {
+    if (this.casei)
+      text = text.toLowerCase();
     var found = this.queries.length ? 1 : 0;
     for(var i=0; i < this.queries.length; ++i)
     {
@@ -21,56 +23,56 @@ function Search(query, casei)
     return found;
   }
 
-  this.findAll2_ = function(text, matchIndices)
+  this.findAll2 = function(text)
   {
+    if (this.casei)
+      text = text.toLowerCase();
+    this.matchIndices = [];
     var found = this.queries.length ? 1 : 0;
     for(var i=0; i < this.queries.length; ++i)
     {
-      found &= this.queries[i].find2(text, matchIndices);
+      found &= this.queries[i].find2(text, this.matchIndices);
       if (!found)
         break;
     }
     return found;
   }
 
-  this.findAny_ = function(text)
+  this.findAny = function(text)
   {
+    if (this.casei)
+      text = text.toLowerCase();
     for(var i=0; i < this.queries.length; ++i)
       if (this.queries[i].find(text))
         return 1;
     return 0;
   }
 
-  this.findAny2_ = function(text, matchIndices)
+  this.findAny2 = function(text)
   {
+    if (this.casei)
+      text = text.toLowerCase();
+    this.matchIndices = [];
     var found = 0;
     for(var i=0; i < this.queries.length; ++i)
-      found |= this.queries[i].find2(text, matchIndices);
+      found |= this.queries[i].find2(text, this.matchIndices);
     return found;
   }
 
-  if (casei)
-  {
-    this.findAll = function(text) {
-      return this.findAll_(text.toLowerCase());
+  this.matchIndices = null;
+
+  if (highlight)
+    this.highlight = function(text)
+    {
+      return highlightMatches(text, this.matchIndices);
     }
-    this.findAll2 = function(text,m) {
-      return this.findAll2_(text.toLowerCase(), m);
-    }
-    this.findAny = function(text) {
-      return this.findAny_(text.toLowerCase());
-    }
-    this.findAny2 = function(text,m) {
-      return this.findAny2_(text.toLowerCase(), m);
-    }
-  }
   else
-  {
-    this.findAll = this.findAll_;
-    this.findAll2 = this.findAll2_;
-    this.findAny = this.findAny_;
-    this.findAny2 = this.findAny2_;
-  }
+    this.highlight = function(text){return text;};
+
+  var hl = highlight ? 1 : 0;
+  // Select a search function depending on whether we have
+  // to highlight matches/match any or not.
+  this.doSearch = matchany ? [this.findAny, this.findAny2][hl] : [this.findAll, this.findAll2][hl];
 }
 
 /**
