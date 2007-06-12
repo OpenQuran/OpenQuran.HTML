@@ -312,6 +312,9 @@ function ReferenceListParser(str)
           this.token.id != TOK.Number
       )
         throw new ParseError("expected number, semicolon or end of string, but found " + this.token.toString(), this.str, this.token.pos);
+      if (this.token.id == TOK.Semicolon) {
+        this.nextToken();
+      }
     }
     return refs;
   }

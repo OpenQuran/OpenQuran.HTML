@@ -194,7 +194,6 @@ function showBBCode()
 
   if (props.type == "show" && props.interleaved)
   {
-debugger;
     do
     {
       code += "[size=18]" + getText(node) + "[/size]\n";
@@ -411,8 +410,9 @@ function FoundRefs()
 
 function search(query)
 {
-  var queries = parseQueryHE(query);
-  if (queries.length == 0)
+  var casei = document.getElementById("casei").checked;
+  var search = parseQueryHE(query, casei);
+  if (!search)
     return;
 
   var authors = getActiveAuthors();
@@ -431,7 +431,7 @@ function search(query)
 
   var hl = document.getElementById("highlight").checked ? 1 : 0;
   // Select a search predicate depending on whether we have to highlight matches or not.
-  var predicate = document.getElementById("matchany").checked ? [findAny, findAny2][hl] : [findAll, findAll2][hl];
+  search.predicate = document.getElementById("matchany").checked ? [search.findAny, search.findAny2][hl] : [search.findAll, search.findAll2][hl];
   var highlight = hl ? highlightMatches : function(text,m){return text;};
 
   var foundRefs = new Array(authors.length);
@@ -458,7 +458,7 @@ function search(query)
         {
           var vidx = vindices[l];
           var matchIndices = [];
-          if (predicate(queries, chapter[vidx], matchIndices))
+          if (search.predicate(chapter[vidx], matchIndices))
           {
             htmlfound += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>" +
                          '<p class="v">'+ highlight(chapter[vidx], matchIndices) + "</p>";
@@ -586,16 +586,16 @@ function parseReferencesHE(str)
 }
 
 /**
-  Parses a query string and returns an array of Query objects.
-  Returns an empty array and shows an error message
+  Parses a query string and returns a new Search object.
+  Returns null and shows an error message
   if an exception was thrown.
 */
-function parseQueryHE(q)
+function parseQueryHE(q, casei)
 {
-  var queries = [];
+  var search = null;
   try
   {
-    queries = parseQuery(q);
+    search = new Search(q, casei);
   }
   catch(e)
   {
@@ -603,7 +603,8 @@ function parseQueryHE(q)
     errDiv.innerHTML = "Error in query: " + e.message;
     setTimeout("removeErrorMsg()", 6000);
   }
-  return queries;
+
+  return search;
 }
 
 function removeErrorMsg()
@@ -653,7 +654,7 @@ function loadVerses(checkbox)
 function disableControls(disabled, ids)
 {
   if (ids == undefined || !(ids instanceof Array))
-    ids = ["chapterList","refs","btnShow","interleave","search","btnSearch","matchany","highlight", "restrict"];
+    ids = ["chapterList","refs","btnShow","interleave","search","btnSearch","matchany","casei","highlight", "restrict"];
   for(var i=0; i < ids.length; ++i)
   {
     document.getElementById(ids[i]).disabled = disabled;
@@ -811,6 +812,7 @@ function visibilityOfChapters(value)
   Search:<br/>
   <input type="text" id="search" /> <button id="btnSearch" onclick="search(document.getElementById('search').value)">Search</button><br/>
   <input type="checkbox" id="matchany">match any</input><br/>
+  <input type="checkbox" id="casei">case insensitive</input><br/>
   <input type="checkbox" id="highlight">highlight matches</input><br/>
   <input type="checkbox" id="restrict">restrict to references</input>
 </td>
