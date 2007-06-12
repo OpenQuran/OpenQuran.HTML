@@ -4,44 +4,73 @@
 */
 //module Query;
 
-function findAll(queries, text)
+function Search(query, casei)
 {
-  var found = queries.length ? 1 : 0;
-  for(var i=0; i < queries.length; ++i)
+  this.casei = casei;
+  this.queries = parseQuery(query, casei);
+
+  this.findAll_ = function(text)
   {
-    found &= queries[i].find(text);
-    if (!found)
-      break;
+    var found = this.queries.length ? 1 : 0;
+    for(var i=0; i < this.queries.length; ++i)
+    {
+      found &= this.queries[i].find(text);
+      if (!found)
+        break;
+    }
+    return found;
   }
-  return found;
-}
 
-function findAll2(queries, text, matchIndices)
-{
-  var found = queries.length ? 1 : 0;
-  for(var i=0; i < queries.length; ++i)
+  this.findAll2_ = function(text, matchIndices)
   {
-    found &= queries[i].find2(text, matchIndices);
-    if (!found)
-      break;
+    var found = this.queries.length ? 1 : 0;
+    for(var i=0; i < this.queries.length; ++i)
+    {
+      found &= this.queries[i].find2(text, matchIndices);
+      if (!found)
+        break;
+    }
+    return found;
   }
-  return found;
-}
 
-function findAny(queries, text)
-{
-  for(var i=0; i < queries.length; ++i)
-    if (queries[i].find(text))
-      return 1;
-  return 0;
-}
+  this.findAny_ = function(text)
+  {
+    for(var i=0; i < this.queries.length; ++i)
+      if (this.queries[i].find(text))
+        return 1;
+    return 0;
+  }
 
-function findAny2(queries, text, matchIndices)
-{
-  var found = 0;
-  for(var i=0; i < queries.length; ++i)
-    found |= queries[i].find2(text, matchIndices);
-  return found;
+  this.findAny2_ = function(text, matchIndices)
+  {
+    var found = 0;
+    for(var i=0; i < this.queries.length; ++i)
+      found |= this.queries[i].find2(text, matchIndices);
+    return found;
+  }
+
+  if (casei)
+  {
+    this.findAll = function(text) {
+      return this.findAll_(text.toLowerCase());
+    }
+    this.findAll2 = function(text,m) {
+      return this.findAll2_(text.toLowerCase(), m);
+    }
+    this.findAny = function(text) {
+      return this.findAny_(text.toLowerCase());
+    }
+    this.findAny2 = function(text,m) {
+      return this.findAny2_(text.toLowerCase(), m);
+    }
+  }
+  else
+  {
+    this.findAll = this.findAll_;
+    this.findAll2 = this.findAll2_;
+    this.findAny = this.findAny_;
+    this.findAny2 = this.findAny2_;
+  }
 }
 
 /**
@@ -95,6 +124,7 @@ function RegExpQuery(query, flags, negate)
 
   this.find = function(text)
   {
+    this.rx.lastIndex = 0;
     return this.rx.test(text) ^ this.negate;
   }
 }
@@ -108,10 +138,13 @@ function isspace(c)
 
 /**
   Parses a query string into an array of Query objects.
-  Unrecognized characters are ignored.
 */
-function parseQuery(q)
+function parseQuery(q, casei)
 {
+  var toLower = casei ?
+    function(t){return t.toLowerCase();} :
+    function(t){return t;};
+
   var queries = [];
 
   var end = 0;
@@ -135,7 +168,7 @@ function parseQuery(q)
       if (end + 1 < q.length)
         if (q.charAt(end + 1) == 'i')
           flags = "i";
-      queries.push( new RegExpQuery(q.slice(i, end), flags, negate) );
+      queries.push( new RegExpQuery(q.slice(i, end), (casei ? "i":flags), negate) );
       i = end + flags.length;
     }
     else if (c == '"')
@@ -145,7 +178,7 @@ function parseQuery(q)
       if (end == -1)
         throw new Error("terminating double quote not found.");
       end += i;
-      queries.push( new SimpleQuery(q.slice(i, end), negate) );
+      queries.push( new SimpleQuery(toLower(q.slice(i, end)), negate) );
       i = end;
     }
     else if (!isspace(c))
@@ -157,7 +190,7 @@ function parseQuery(q)
         if (isspace(c))
           break;
       }
-      queries.push( new SimpleQuery(q.slice(i, end), negate) );
+      queries.push( new SimpleQuery(toLower(q.slice(i, end)), negate) );
       i = end - 1;
     }
     else
