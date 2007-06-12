@@ -194,13 +194,14 @@ function showBBCode()
 
   if (props.type == "show" && props.interleaved)
   {
+debugger;
     do
     {
       code += "[size=18]" + getText(node) + "[/size]\n";
       var div = node.nextSibling;
       // traverse children of div-tag
       node = div.firstChild;
-      if (node.className.slice(0,1) == "r")
+      if (node.className.slice(0,1) != "r")
       {
         code += "[i]" + getText(node) + "[/i]\n";
         node = node.nextSibling;
