@@ -617,8 +617,13 @@ function loadVerses(checkbox)
 
   if (!authors.length)
     disableControls(true);
-  else if (authors.length == 1)
+  else if (authors.length == 1) {
     disableControls(false);
+    disableControls(true, ["interleave"]);
+  }
+  else if (authors.length > 1) {
+    disableControls(false, ["interleave"]);
+  }
 
   if (checkbox.isLoaded)
     return; // Author is already loaded
@@ -644,9 +649,10 @@ function loadVerses(checkbox)
 /**
   Enable or disable user controls.
 */
-function disableControls(disabled)
+function disableControls(disabled, ids)
 {
-  var ids = ["chapterList","refs","btnShow","interleave","search","btnSearch","matchany","highlight", "restrict"];
+  if (ids == undefined || !(ids instanceof Array))
+    ids = ["chapterList","refs","btnShow","interleave","search","btnSearch","matchany","highlight", "restrict"];
   for(var i=0; i < ids.length; ++i)
   {
     document.getElementById(ids[i]).disabled = disabled;
