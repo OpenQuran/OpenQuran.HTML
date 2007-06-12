@@ -410,8 +410,10 @@ function FoundRefs()
 
 function search(query)
 {
+  var hl = document.getElementById("highlight").checked;
+  var matchany = document.getElementById("matchany").checked;
   var casei = document.getElementById("casei").checked;
-  var search = parseQueryHE(query, casei);
+  var search = parseQueryHE(query, matchany, hl, casei);
   if (!search)
     return;
 
@@ -428,11 +430,6 @@ function search(query)
   var refs = parseReferencesHE(refsString);
   if (refs.length == 0)
     return;
-
-  var hl = document.getElementById("highlight").checked ? 1 : 0;
-  // Select a search predicate depending on whether we have to highlight matches or not.
-  search.predicate = document.getElementById("matchany").checked ? [search.findAny, search.findAny2][hl] : [search.findAll, search.findAll2][hl];
-  var highlight = hl ? highlightMatches : function(text,m){return text;};
 
   var foundRefs = new Array(authors.length);
 
@@ -457,11 +454,10 @@ function search(query)
         for(var l=0; l < vindices.length; ++l)
         {
           var vidx = vindices[l];
-          var matchIndices = [];
-          if (search.predicate(chapter[vidx], matchIndices))
+          if (search.doSearch(chapter[vidx]))
           {
             htmlfound += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>" +
-                         '<p class="v">'+ highlight(chapter[vidx], matchIndices) + "</p>";
+                         '<p class="v">'+ search.highlight(chapter[vidx]) + "</p>";
             ++totalNrOfMatches;
             foundRefs[i].push(cidx, vidx+1);
           }
@@ -590,12 +586,12 @@ function parseReferencesHE(str)
   Returns null and shows an error message
   if an exception was thrown.
 */
-function parseQueryHE(q, casei)
+function parseQueryHE(q, matchany, highlight, casei)
 {
   var search = null;
   try
   {
-    search = new Search(q, casei);
+    search = new Search(q, matchany, highlight, casei);
   }
   catch(e)
   {
