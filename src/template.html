@@ -33,6 +33,7 @@ h2 { margin-left: 5px; font-size: 1em; }
 }
 #refs { width: 250px; }
 #search { width: 250px; }
+.foundM span { cursor: pointer; }
 /* Verse */
 .v { margin: 5px 30px;}
 /* Reference */
@@ -336,6 +337,76 @@ function show(refsStr)
   setText(html, {type:"show", interleaved: interleave.checked});
 }
 
+function showFoundRefs(span, index)
+{
+  var text = document.getElementById("text");
+  span.parentNode.appendChild(document.createTextNode(text.textProperties.foundReferences[index].toString()));
+//   span.setAttribute("onclick", "hideFoundRefs(this,"+index+")");
+  span.foundRefsIdx = index;
+  span.onclick = function(){hideFoundRefs(this,this.foundRefsIdx);};
+  span.linkText = span.firstChild.data;
+  span.firstChild.data = "Hide found references.";
+}
+
+function hideFoundRefs(span, index)
+{
+  span.parentNode.innerHTML = '<span onclick="showFoundRefs(this,'+index+')">'+span.linkText+"</span><br/>";
+}
+
+function FoundRefs()
+{
+  this.array = new Array(NR_OF_CHAPTERS);
+  for (var i=0; i < NR_OF_CHAPTERS; ++i)
+    this.array[i] = [];
+  this.push = function(cidx, vidx)
+  {
+    var a = this.array;
+    if (a[cidx].length)
+    {
+      var r = a[cidx][a[cidx].length-1];
+      var cmp = r[1];
+      if (!cmp)
+        cmp = r[0];
+      if (cmp+1 == vidx)
+      {
+        r[1] = vidx;
+        return;
+      }
+      // else push new range below
+    }
+
+    a[cidx].push( [vidx, 0] );
+  }
+  this.toString = function()
+  {
+    var str = "";
+    for (var i=0; i < NR_OF_CHAPTERS; ++i)
+    {
+      var a = this.array[i];
+      if (a.length)
+      {
+        if (a.length == 1 && a[0][0] == 1 && a[0][1] == verses_table[i])
+        {
+          str += i+1+"; ";
+          continue;
+        }
+
+        str += i+1+":";
+        for (var j=0; j < a.length; ++j)
+        {
+          var l = a[j][0], r = a[j][1];
+          if (r)
+            str += l+"-"+r+",";
+          else
+            str += l+",";
+        }
+        str = str.slice(0, str.length-1) + "; ";
+      }
+    }
+    return str;
+  }
+}
+
 function search(query)
 {
   var queries = parseQueryHE(query);
@@ -361,11 +432,14 @@ function search(query)
   var predicate = document.getElementById("matchany").checked ? [findAny, findAny2][hl] : [findAll, findAll2][hl];
   var highlight = hl ? highlightMatches : function(text,m){return text;};
 
+  var foundRefs = new Array(authors.length);
+
   var html = "";
   for(var i=0; i < authors.length; ++i)
   {
     var author = authors[i];
     var totalNrOfMatches = 0;
+    foundRefs[i] = new FoundRefs();
     var htmlauthor = "";
     for(var j=0; j < refs.length; ++j)
     {
@@ -387,6 +461,7 @@ function search(query)
             htmlfound += '<p class="r">'+cidxStr+":"+(vidx+1)+"</p>" +
                          '<p class="v">'+ highlight(chapter[vidx], matchIndices) + "</p>";
             ++totalNrOfMatches;
+            foundRefs[i].push(cidx, vidx+1);
           }
         }
         if (htmlfound.length)
@@ -396,10 +471,14 @@ function search(query)
         }
       }
     }
-    html += "<p>Found "+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+':</p><div class="'+author.langClass+'"><p class="author">'+author.name+':</p><div>' + htmlauthor + "</div></div>";
+    html += '<p class="foundM"><span'+
+            (totalNrOfMatches?' onclick="showFoundRefs(this,'+i+');return false;"':'')+
+            '>Found '+totalNrOfMatches+" match"+(totalNrOfMatches==1?"":"es")+
+            ':</span><br/></p><div class="'+author.langClass+
+            '"><p class="author">'+author.name+':</p><div>' + htmlauthor + "</div></div>";
   }
 
-  setText(html, {type:"search", highlighted: hl});
+  setText(html, {type:"search", highlighted: hl, foundReferences : foundRefs});
 }
 
 /*
