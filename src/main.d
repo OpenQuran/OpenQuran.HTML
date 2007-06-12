@@ -5,6 +5,7 @@
 module openquran;
 import std.string;
 import std.random;
+import std.file;
 import Quran;
 import ReferenceParser;
 import Query;
@@ -359,14 +360,15 @@ Examples:
 `;
 
 const char[] helpToHTML =
-`Use this command to generate an HTML file with dynamic features added by
+`Use this command to generate an HTML file with dynamic features added with
 JavaScript.
 
 Usage:
   `~usageToHTML~`
+  quran tohtml -i   # Type this for interactive mode
 
 Example:
-  genhtml yusufali arabic khalifa > YusufAli_Arabic_RashadKhalifa.html
+  quran tohtml yusufali arabic khalifa > YusufAli_Arabic_RashadKhalifa.html
 `;
 
 void printHelp(char[] about)
@@ -439,7 +441,7 @@ char[] myreplace(char[] text, char[] from, char[] to)
   return text[0..start] ~ to ~ text[start+from.length .. $];
 }
 
-void toHTML(char[][] authors)
+char[] toHTML(char[][] authors)
 {
   char[] Quran_js = readFile("Quran.js");
   char[] Query_js = readFile("Query.js");
@@ -489,7 +491,21 @@ void toHTML(char[][] authors)
   template_html = myreplace(template_html, "{%QuranObjects%}", authorsArray);
   template_html = myreplace(template_html, "{%Verses%}", commentedVerses);
 
-  writefln("%s", template_html);
+  return template_html;
+}
+
+void toHTMLInteractive()
+{
+  char[] authors;
+  writefln("Enter a list of Qur'an files separated by spaces:");
+  readln(authors);
+  authors = authors[0..$-1]; // Remove \n
+  char[] filename;
+  writefln("Enter the file name you want to save to:");
+  readln(filename);
+  filename = filename[0..$-1]; // Remove \n
+  std.file.write(filename, toHTML(split(authors, " ")));
+  writefln("Done!");
 }
 
 void main(char[][] args)
@@ -626,12 +642,14 @@ void main(char[][] args)
       return;
     case "tohtml":
       usageMsg = "tohtml";
+      if (args.length == 3 && args[2] == "-i")
+        return toHTMLInteractive();
       if (args.length < 3)
       {
         errorMsg = "no authors specified.";
         goto Lerr;
       }
-      toHTML(args[2..$]);
+      writef("%s", toHTML(args[2..$]));
       return;
     case "help":
       if (args.length > 2)
