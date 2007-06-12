@@ -91,7 +91,7 @@ void search(char[] query, char[] referenceList, char[][] authors, int options)
     try
       qurans ~= new Quran(author);
     catch(Exception e)
-      writefln(e);
+      werrfln(e);
 
   if (options & Options.References)
   {
@@ -224,7 +224,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
       refs = parser.parseReferences();
     catch(ParseError e)
     {
-      writefln(e);
+      werrfln(e);
       return;
     }
   }
@@ -235,7 +235,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
     try
       qurans ~= new Quran(author);
     catch(Exception e)
-      writefln(e);
+      werrfln(e);
 
   if (options & Options.Alternating && qurans.length > 1)
   { // Output verses of each author in alternating order.
@@ -457,7 +457,7 @@ void toHTML(char[][] authors)
     try
       qurans ~= new Quran(author);
     catch(Exception e)
-      writefln(e);
+      werrfln(e);
 
   // Construct javascript array of author objects
   char[] authorsArray = "[\n";
@@ -570,7 +570,7 @@ void main(char[][] args)
       try
         search(callArgs[0], refList, callArgs[1..$], options);
       catch(Exception e)
-        writefln(e);
+        werrfln(e);
 
       return;
     case "show":
@@ -621,7 +621,7 @@ void main(char[][] args)
       try
         show(callArgs[0], callArgs[1..$], options, randomNUM);
       catch(Exception e)
-        writefln(e);
+        werrfln(e);
 
       return;
     case "tohtml":
