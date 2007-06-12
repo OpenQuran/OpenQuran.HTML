@@ -19,6 +19,16 @@ h2:hover { color: #309; }
 #authorList p { margin: 0 0 0 10px; padding: 0px; }
 h2 { margin-left: 5px; font-size: 1em; }
 .cellborder { border: 1px solid #CCE; }
+a { color: #339; text-decoration: none; }
+#helplnk {
+  position:absolute;
+  right:0px;
+  top:0px;
+  padding:5px;
+  margin:0px;
+}
+#help h2:hover { color: black; }
+#help div { margin: 0 1em; }
 #text {
   margin: auto 10%;
 }
@@ -760,6 +770,19 @@ function populateChapterList(authorIdx)
 
   list.style.width = "auto"; // Required by IE
 }
+
+function showHelp()
+{
+  document.getElementById("helplnk").innerHTML = '<a href="javascript:closeHelp()">Close Help</a>';
+  document.getElementById("help").className = "";
+}
+
+function closeHelp()
+{
+  document.getElementById("helplnk").innerHTML = '<a href="javascript:showHelp()">Help</a>';
+  document.getElementById("help").className = "hidden";
+}
+
 /*
 function visibilityOfChapters(value)
 {
@@ -787,6 +810,7 @@ function visibilityOfChapters(value)
 </head>
 <body onload="init()" style="margin:0;padding:0;">
 <h1><a href="http://code.google.com/p/openquran/">openquran</a> dhtml<br><span style="font-size: 0.4em;">Version 0.22</span></h1>
+<p id="helplnk"><a href="javascript:showHelp()">Help</a></p>
 <div style="margin:0px;padding:5px;">
 <table cellpadding="5" valign="top">
 <tr style="vertical-align:top;">
@@ -800,7 +824,7 @@ function visibilityOfChapters(value)
   <div id="authorList"></div>
 </td>
 <td rowspan="2">
-  <select id="chapterList" multiple="true" size="10" onchange="selectChapter(this)"></select>
+  <select id="chapterList" multiple="true" size="12" onchange="selectChapter(this)"></select>
 </td>
 </tr>
 <tr>
@@ -815,7 +839,40 @@ function visibilityOfChapters(value)
 </tr>
 </table>
 <div id="error" onclick="removeErrorMsg()"></div>
-<div id="help" style="display:none;">
+<div id="help" class="hidden">
+<h2 onclick="onHeaderClick(this)">1. Overview</h2>
+<div>
+<p>Enable an author for searching/browsing by clicking on his/her checkbox.
+You can click on the label of an author to change the chapter list to the chapter names of the author.</p>
+<p>Browse the Qur'an by clicking on the items in the chapter list or by entering references in the respective text box.</p>
+<ul>
+<li><em>interleave verses</em>: turn this option on if you want to compare verses.</li>
+</ul>
+<p>Enter some words in the search box to perform a query:</p>
+<ul>
+<li><em>match any</em>: matches any words given in the query. The default is matching all words.</li>
+<li><em>case insensitive</em>: disregards the casing of the letters.</li>
+<li><em>highlight matches</em>: highlights the words from the query in the text.</li>
+<li><em>restrict to references</em>: search only in the references specified in the box above.</li>
+</ul>
+</div>
+<h2 onclick="onHeaderClick(this)">2. References</h2>
+<div>
+<p>A reference is composed of a part of chapter numbers and a part of verse numbers.
+Both parts are joined by a colon (CP:VP), though VP can be left out to mean "all verses of that chapter."
+In both parts you can specify a list of numbers and ranges separated by a comma.
+Separate multiple references with a semicolon or a space. E.g.:</p>
+<pre>
+  22 49 58           # All verses of chapter 22, 49 and 58.
+  1:3 2:286          # Verse 3 of chapter 1 and verse 286 of chapter 2.
+  1,8:19,2,9,5,7     # Verses 19,2,9,5,7 of chapter 1 and 8.
+  38-98,100:5-10,18  # Verses 5 to 10 and 18 of chapters 38 to 98 and 100.
+  2-10:4-*           # Chapters 2 to 10, all verses from 4 to the end of each chapter.
+  *:1,2              # First two verses of all chapters (equiv. to 1-114:1,2).
+  24+3:34+6          # Relative ranges. Equivalent to 24-27:34-40
+  3:187+10           # Verses 187 to 197 of chapter 3.
+</pre>
+</div>
 </div>
 <div id="debug" onclick="this.innerHTML=''">
 </div>
