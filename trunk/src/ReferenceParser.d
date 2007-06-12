@@ -323,6 +323,8 @@ class ReferenceListParser
         continue;
       if (token.id != TOK.Semicolon && token.id != TOK.Eof && token.id != TOK.Number)
         throw new ParseError("expected number, semicolon or end of input, but found " ~ token.toString(), input, token.pos);
+      if (token.id == TOK.Semicolon)
+        nextToken();
     }
     return refs;
   }
