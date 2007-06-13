@@ -2,8 +2,10 @@
   Author: Aziz Köksal
   License: GPL2
 */
-module WinConsole;
+module Console;
 
+version(Windows)
+{
 import std.format;
 import std.utf : encode;
 static import std.stdio;
@@ -92,4 +94,17 @@ void writefx(void* handle, TypeInfo[] arguments, void* argptr, int newline = fal
   // maybe that case should be handled and the string split into 64k chunks.
   WriteConsoleW(handle, cast(void*)data.ptr, data.length, &written, null);
   debug assert(written == data.length);
+}
+} // version(Windows)
+else
+{
+public import std.stdio;
+void werrf(T...)(T args)
+{
+  fwritef(stderr, args);
+}
+void werrfln(T...)(T args)
+{
+  fwritefln(stderr, args);
+}
 }

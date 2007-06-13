@@ -11,23 +11,7 @@ import ReferenceParser;
 import Query;
 import Strings;
 import CmdLine;
-
-version(Windows)
-{
-  import WinConsole;
-}
-else
-{
-  import std.stdio;
-  void werrf(T...)(T args)
-  {
-    fwritef(stderr, args);
-  }
-  void werrfln(T...)(T args)
-  {
-    fwritefln(stderr, args);
-  }
-}
+import Console;
 
 /++
   Transform a list of integers into a list of ranges.
