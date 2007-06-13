@@ -773,13 +773,11 @@ function populateChapterList(authorIdx)
 
 function showHelp()
 {
-  document.getElementById("helplnk").innerHTML = '<a href="javascript:closeHelp()">Close Help</a>';
   document.getElementById("help").className = "";
 }
 
 function closeHelp()
 {
-  document.getElementById("helplnk").innerHTML = '<a href="javascript:showHelp()">Help</a>';
   document.getElementById("help").className = "hidden";
 }
 
@@ -840,6 +838,7 @@ function visibilityOfChapters(value)
 </table>
 <div id="error" onclick="removeErrorMsg()"></div>
 <div id="help" class="hidden">
+<a href="javascript:closeHelp()">Close Help</a>
 <h2 onclick="onHeaderClick(this)">1. Overview</h2>
 <div>
 <p>Enable an author for searching/browsing by clicking on his/her checkbox.
