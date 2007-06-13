@@ -1,4 +1,4 @@
-Version 1.00-rc1 ():
+Version 1.00-rc1 (13 June 2007):
   * You can now generate a DHTML file with the Qur'an files your prefer.
     JavaScript will be included in the generated file in order to give you the
     experience of an offline dynamic application in your browser.
