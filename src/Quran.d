@@ -75,7 +75,7 @@ class Quran
 
     char[][] header;
 
-    for(int i; i<3; ++i)
+    for(int i; i<4; ++i)
     {
       int nlpos = find(data, '\n');
       if (nlpos == -1)
@@ -86,7 +86,8 @@ class Quran
 
     if (find(header[0],"Author:") != 0 ||
         find(header[1],"Lang:")   != 0 ||
-        find(header[2],"Titles:") != 0)
+        find(header[2],"Titles:") != 0 ||
+        header[3] != "Verses:")
       goto Lcorrupt;
 
     author = std.string.strip(header[0][7..$]);
