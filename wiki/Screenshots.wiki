@@ -2,6 +2,7 @@
 
 = Screenshots =
 Generating an HTML file with MakeHTML.bat.
+
 http://openquran.googlecode.com/files/MakeHTML.png
 == Firefox 2.0 on Linux ==
 [http://openquran.googlecode.com/files/Firefox2.0_Linux_01.png http://openquran.googlecode.com/files/Firefox2.0_Linux_01.tn.png]
