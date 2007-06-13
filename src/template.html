@@ -839,7 +839,7 @@ function visibilityOfChapters(value)
 <div id="error" onclick="removeErrorMsg()"></div>
 <div id="help" class="hidden">
 <a href="javascript:closeHelp()">Close Help</a>
-<h2 onclick="onHeaderClick(this)">1. Overview</h2>
+<h2>1. Overview</h2>
 <div>
 <p>Enable an author for searching/browsing by clicking on his/her checkbox.
 You can click on the label of an author to change the chapter list to the chapter names of the author.</p>
@@ -854,8 +854,14 @@ You can click on the label of an author to change the chapter list to the chapte
 <li><em>highlight matches</em>: highlights the words from the query in the text.</li>
 <li><em>restrict to references</em>: search only in the references specified in the box above.</li>
 </ul>
+Search operators:
+<ul>
+<li>-: prepend a term with a minus to find verses that don't contain this term.</li>
+<li>"...": put quotation marks around two or more words to search for them as a phrase.</li>
+<li>/.../i: a forward slash starts a JavaScript regular expression and a second one terminates it. The "i" flag is optional and means case insensitive patter matching. Regular expressions are a complicated and vast subject so I can't explain them here. Please, refer to <a href="http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:RegExp">Mozilla's RegExp page</a> for further information.</li>
+</ul>
 </div>
-<h2 onclick="onHeaderClick(this)">2. References</h2>
+<h2>2. References</h2>
 <div>
 <p>A reference is composed of a part of chapter numbers and a part of verse numbers.
 Both parts are joined by a colon (CP:VP), though VP can be left out to mean "all verses of that chapter."
@@ -869,7 +875,7 @@ Separate multiple references with a semicolon or a space. E.g.:</p>
   2-10:4-*           # Chapters 2 to 10, all verses from 4 to the end of each chapter.
   *:1,2              # First two verses of all chapters (equiv. to 1-114:1,2).
   24+3:34+6          # Relative ranges. Equivalent to 24-27:34-40
-  3:187+10           # Verses 187 to 197 of chapter 3.
+  3:7,187+10         # Verse 7 and verses 187 to 197 of chapter 3.
 </pre>
 </div>
 </div>
