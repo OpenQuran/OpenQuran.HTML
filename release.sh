@@ -10,7 +10,7 @@ if [[ $2 == [0-9] ]]; then
   RC="-rc$2"
 fi
 
-REGEXP="\([0-9].[0-9][0-9]-rc[0-9]\|[0-9].[0-9][0-9]\)"
+REGEXP="\([0-9]\.[0-9][0-9]-rc[0-9]\|[0-9]\.[0-9][0-9]\)"
 
 # Update version info
 # NB: streaming to a temp file. The "-i" option in sed doesn't seem to work.
