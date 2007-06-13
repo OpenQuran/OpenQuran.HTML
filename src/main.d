@@ -269,7 +269,7 @@ void show(char[] referenceList, char[][] authors, int options, int randomNUM)
   }
 }
 
-const char[] VERSION = "0.22";
+const char[] VERSION = "1.00-rc1";
 
 const char[] usageShow = "quran show <references> <authors> [options]";
 const char[] usageSearch = "quran search <query> <authors> [options]";
