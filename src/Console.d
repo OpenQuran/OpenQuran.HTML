@@ -9,6 +9,7 @@ version(Windows)
 import std.format;
 import std.utf : encode;
 static import std.stdio;
+public import std.stdio : readln;
 
 extern(Windows) void* GetStdHandle(uint);
 extern(Windows) int WriteConsoleW(void*,void*,uint,uint*,void*);
@@ -99,10 +100,15 @@ void writefx(void* handle, TypeInfo[] arguments, void* argptr, int newline = fal
 else
 {
 public import std.stdio;
+
+/++
+  Outputs the arguments to the standard error output.
++/
 void werrf(T...)(T args)
 {
   fwritef(stderr, args);
 }
+/// Ditto
 void werrfln(T...)(T args)
 {
   fwritefln(stderr, args);
